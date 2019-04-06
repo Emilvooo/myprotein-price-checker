@@ -3,22 +3,25 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
+    <a class="btn btn-primary mb-3" href="dashboard/scrapable/add" role="button">Add scrapable product</a>
     <table class="table">
         <thead>
         <tr>
             <th scope="col">Name</th>
             <th scope="col">Price</th>
             <th scope="col">Date</th>
+            <th scope="col">Detail</th>
         </tr>
         </thead>
         <tbody>
-        {% for product in products %}
-            <tr>
-                <td><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></td>
-                <td>€{{ product.price * 0.65 / 100|round(2) }}</td>
-                <td>{{ product.date|date("d/m/Y") }}</td>
-            </tr>
-        {% endfor %}
+            {% for product in products %}
+                <tr>
+                    <td><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></td>
+                    <td>€{{ product.price / 100|round(2) }}</td>
+                    <td>{{ product.date|date('Y-m-d H:i:s') }}</td>
+                    <td><a class="btn btn-primary mb-3" href="dashboard/item" role="button">Detail</a></td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 {% endblock %}

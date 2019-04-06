@@ -19,16 +19,22 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getProductToday()
+    public function getMostRecentProductsToday()
     {
-        $today = new \DateTime('today');
+        $sql = '
+                SELECT p.*
+                FROM product p
+                WHERE p.DATE = (
+                    SELECT MAX(p2.DATE)
+                    FROM product p2
+                    WHERE p2.NAME = p.name
+                    )					
+        ';
 
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.date = :today')
-            ->setParameter('today', $today->format('d-m-Y'))
-            ->getQuery()
-            ->getResult()
-        ;
+        $em = $this->getEntityManager()->getConnection()->prepare($sql);
+        $em->execute();
+
+        return $em->fetchAll();
     }
     // /**
     //  * @return Product[] Returns an array of Product objects
