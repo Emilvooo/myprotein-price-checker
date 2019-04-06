@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,19 +24,19 @@ class Product
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $price;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $url;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="product")
      */
-    private $date;
+    private $prices;
+
+    public function __construct()
+    {
+        $this->prices = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -53,18 +55,6 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?int
-    {
-        return $this->price;
-    }
-
-    public function setPrice(int $price): self
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
     public function getUrl(): ?string
     {
         return $this->url;
@@ -77,14 +67,33 @@ class Product
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    /**
+     * @return Collection|Price[]
+     */
+    public function getPrices(): Collection
     {
-        return $this->date;
+        return $this->prices;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function addPrice(Price $price): self
     {
-        $this->date = $date;
+        if (!$this->prices->contains($price)) {
+            $this->prices[] = $price;
+            $price->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrice(Price $price): self
+    {
+        if ($this->prices->contains($price)) {
+            $this->prices->removeElement($price);
+            // set the owning side to null (unless already changed)
+            if ($price->getProduct() === $this) {
+                $price->setProduct(null);
+            }
+        }
 
         return $this;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
 use App\Repository\ProductRepository;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,11 +15,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractController
 {
     /**
-     * @Route("/dashboard", name="dashboard")
+     * @Route("/dashboard", name="dashboard_index")
+     * @param ProductRepository $productRepository
+     * @return Response
      */
-    public function index(Request $request, ProductRepository $products)
+    public function index(ProductRepository $productRepository)
     {
-        $products = $products->getMostRecentProductsToday();
+        $products = $productRepository->getMostRecentProductsToday();
 
         return $this->render('dashboard/index.html.twig',
             ['products' => $products]
@@ -26,15 +29,21 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * @Route("/dashboard/item", name="dashboard_item")
+     * @Route("/dashboard/{id}", name="dashboard_product")
+     *
      */
-    public function item()
+    public function item(Product $product)
     {
-
+        return $this->render('dashboard/item.html.twig',
+            [
+                'product' => $product,
+                'prices' => $product->getPrices()
+            ]
+        );
     }
 
     /**
-     * @Route("/dashboard/scrapable/add", name="dashboard_scrapable_item_add")
+     * @Route("/dashboard/scrapable/add", name="dashboard_scrapable_product_add")
      */
     public function addScrapableProduct(Request $request)
     {

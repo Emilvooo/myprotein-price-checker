@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Item{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Price</th>
+            <th scope="col">Date</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for price in prices|sort|reverse %}
+                <tr>
+                    <td>
+                        €{{ (price.price / 100)|round(2) }} <br />
+                        <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
+                    </td>
+                    <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

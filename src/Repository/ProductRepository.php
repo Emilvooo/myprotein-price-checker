@@ -22,20 +22,21 @@ class ProductRepository extends ServiceEntityRepository
     public function getMostRecentProductsToday()
     {
         $sql = '
-                SELECT p.*
-                FROM product p
-                WHERE p.DATE = (
-                    SELECT MAX(p2.DATE)
-                    FROM product p2
-                    WHERE p2.NAME = p.name
-                    )					
+            SELECT product.id, product.name, product.url, price.price, price.date
+            FROM product
+            INNER JOIN price ON price.product_id = product.id
+            WHERE price.DATE = (
+                SELECT MAX(p2.DATE)
+                FROM price p2
+                WHERE p2.product_id = price.product_id
+            )
         ';
-
         $em = $this->getEntityManager()->getConnection()->prepare($sql);
         $em->execute();
-
         return $em->fetchAll();
     }
+
+
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */

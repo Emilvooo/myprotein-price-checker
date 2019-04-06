@@ -17,9 +17,12 @@
             {% for product in products %}
                 <tr>
                     <td><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></td>
-                    <td>€{{ product.price / 100|round(2) }}</td>
+                    <td>
+                        €{{ (product.price / 100)|round(2) }} <br />
+                        <strong>€{{ (product.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
+                    </td>
                     <td>{{ product.date|date('Y-m-d H:i:s') }}</td>
-                    <td><a class="btn btn-primary mb-3" href="dashboard/item" role="button">Detail</a></td>
+                    <td><a class="btn btn-primary mb-3" href="dashboard/{{ product.id }}" role="button">Detail</a></td>
                 </tr>
             {% endfor %}
         </tbody>
