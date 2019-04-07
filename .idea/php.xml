@@ -112,8 +112,6 @@
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
       <path value="$PROJECT_DIR$/vendor/cmen/google-charts-bundle" />
       <path value="$PROJECT_DIR$/vendor/padam87/cron-bundle" />
-      <path value="$PROJECT_DIR$/vendor/cron/cron-bundle" />
-      <path value="$PROJECT_DIR$/vendor/cron/cron" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />

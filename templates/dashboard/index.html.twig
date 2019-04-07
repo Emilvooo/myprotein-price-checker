@@ -5,10 +5,10 @@
 {% block body %}
     <div class="row d-flex justify-content-between">
         <div class="p-2">
-            <h2><a href="/dashboard">Dashboard - Products</a></h2>
+            <h2><a href="/">Dashboard - Products</a></h2>
         </div>
         <div class="p-2">
-            <a class="btn btn-primary" href="dashboard/scrapable/add" role="button">Add scrapable product</a>
+            <a class="btn btn-primary" href="/scrapable/add" role="button">Add scrapable product</a>
         </div>
     </div>
     <table class="table mt-3">
@@ -30,7 +30,7 @@
                         <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
                     </td>
                     <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                    <td><a class="btn btn-primary mb-3" href="dashboard/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
+                    <td><a class="btn btn-primary mb-3" href="product/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
                 </tr>
             {% endfor %}
         </tbody>

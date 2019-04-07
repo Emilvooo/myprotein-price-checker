@@ -2,12 +2,6 @@
     "cmen/google-charts-bundle": {
         "version": "3.1.0"
     },
-    "cron/cron": {
-        "version": "1.4.1"
-    },
-    "cron/cron-bundle": {
-        "version": "2.1.0"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
