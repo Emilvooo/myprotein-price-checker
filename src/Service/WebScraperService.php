@@ -64,9 +64,11 @@ class WebScraperService
     public function setPrice(Product $product, $productVariation)
     {
         $dateToday = new \DateTime('now');
-        if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
-            if ($productVariation['price'] * 100 == $product->getPrices()->last()->getPrice()) {
-                return;
+        if (!empty($product->getPrices()->last())) {
+            if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
+                if ($productVariation['price'] * 100 == $product->getPrices()->last()->getPrice()) {
+                    return;
+                }
             }
         }
 
