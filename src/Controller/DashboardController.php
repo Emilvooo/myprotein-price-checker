@@ -23,7 +23,7 @@ class DashboardController extends AbstractController
      */
     public function index(ProductRepository $productRepository)
     {
-        $products = $productRepository->getMostRecentProductsToday();
+        $products = $productRepository->findAll();
 
         return $this->render('dashboard/index.html.twig',
             ['products' => $products]

@@ -22,13 +22,14 @@
         </thead>
         <tbody>
             {% for product in products %}
+                {% set price = product.prices|last %}
                 <tr>
                     <td><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></td>
                     <td>
-                        €{{ (product.price / 100)|round(2) }} <br />
-                        <strong>€{{ (product.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
+                        €{{ (price.price / 100)|round(2) }} <br />
+                        <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
                     </td>
-                    <td>{{ product.date|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
                     <td><a class="btn btn-primary mb-3" href="dashboard/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
                 </tr>
             {% endfor %}
