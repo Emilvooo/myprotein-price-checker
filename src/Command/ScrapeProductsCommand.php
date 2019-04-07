@@ -34,6 +34,6 @@ class ScrapeProductsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->webScraperService->processData();
-        $output->writeln('Products successfully added!');
+        $output->writeln('Scraping done!');
     }
 }

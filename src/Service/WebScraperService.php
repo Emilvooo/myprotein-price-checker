@@ -26,11 +26,10 @@ class WebScraperService
         $products = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
         foreach ($products as $product) {
             $crawler = $this->client->request('GET', $product->getUrl());
-            $productVariations = json_decode($crawler->filterXpath('//script[@type="application/ld+json"]')->text(), true);
-            foreach ($productVariations['offers'] as $productVariation) {
-                $crawler = $this->client->request('GET', $productVariation['url']);
-                $productVariation['name'] = $crawler->filter('.athenaProductImageCarousel_image')->attr('alt');
-
+            $productVariations = json_decode($crawler->filterXpath('//script[contains(., "offers")]')->text(), true)['offers'];
+            foreach ($productVariations as $productVariation) {
+                $crawler = $this->client->request('GET', 'https://nl.myprotein.com/'.$productVariation['sku'].'.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
+                $productVariation['name'] = $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt');
                 if (!empty($productVariation)) {
                     $product = $this->addProduct($productVariation);
                     $this->setPrice($product, $productVariation);
@@ -64,6 +63,13 @@ class WebScraperService
 
     public function setPrice(Product $product, $productVariation)
     {
+        $dateToday = new \DateTime('now');
+        if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
+            if ($productVariation['price'] * 100 == $product->getPrices()->last()->getPrice()) {
+                return;
+            }
+        }
+
         $price = new Price();
         $price->setPrice($productVariation['price'] * 100);
         $price->setDate(new \DateTime('now'));
