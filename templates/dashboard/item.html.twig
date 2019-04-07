@@ -1,8 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Item{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block body %}
+    <div class="row d-flex justify-content-between">
+        <div class="p-2">
+            <h2><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></h2>
+        </div>
+        <div class="p-2">
+            <a class="btn btn-primary" href="/dashboard" role="button">Back</a>
+        </div>
+    </div>
     <table class="table">
         <thead>
         <tr>

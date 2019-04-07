@@ -3,8 +3,15 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
-    <a class="btn btn-primary mb-3" href="dashboard/scrapable/add" role="button">Add scrapable product</a>
-    <table class="table">
+    <div class="row d-flex justify-content-between">
+        <div class="p-2">
+            <h2>Dashboard - Products</h2>
+        </div>
+        <div class="p-2">
+            <a class="btn btn-primary" href="dashboard/scrapable/add" role="button">Add scrapable product</a>
+        </div>
+    </div>
+    <table class="table mt-3">
         <thead>
         <tr>
             <th scope="col">Name</th>
