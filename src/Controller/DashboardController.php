@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
 use App\Repository\ProductRepository;
+use App\Service\GoogleChartService;
+use CMEN\GoogleChartsBundle\GoogleCharts\Charts\LineChart;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,12 +34,15 @@ class DashboardController extends AbstractController
      * @Route("/dashboard/{id}", name="dashboard_product")
      *
      */
-    public function item(Product $product)
+    public function item(Product $product, GoogleChartService $googleChartService)
     {
+        $lineChart = $googleChartService->createLineChart($product);
+
         return $this->render('dashboard/item.html.twig',
             [
                 'product' => $product,
-                'prices' => $product->getPrices()
+                'prices' => $product->getPrices(),
+                'linechart' => $lineChart
             ]
         );
     }

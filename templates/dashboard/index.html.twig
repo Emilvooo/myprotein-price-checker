@@ -17,7 +17,7 @@
             <th scope="col">Name</th>
             <th scope="col">Price</th>
             <th scope="col">Date</th>
-            <th scope="col">Detail</th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -29,7 +29,7 @@
                         <strong>€{{ (product.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
                     </td>
                     <td>{{ product.date|date('Y-m-d H:i:s') }}</td>
-                    <td><a class="btn btn-primary mb-3" href="dashboard/{{ product.id }}" role="button">Detail</a></td>
+                    <td><a class="btn btn-primary mb-3" href="dashboard/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
                 </tr>
             {% endfor %}
         </tbody>
