@@ -55,8 +55,17 @@ class DashboardController extends AbstractController
         $scrapableProduct = new ScrapeableProduct();
 
         $form = $this->createFormBuilder($scrapableProduct)
-            ->add('url', TextType::class)
-            ->add('submit', SubmitType::class, ['label' => 'Submit'])
+            ->add('url', TextType::class,
+                [
+                    'label' => 'URL: ',
+                ]
+            )
+            ->add('submit', SubmitType::class,
+                [
+                    'label' => 'Submit',
+                    'attr' => ['class' => 'btn-dark']
+                ]
+            )
             ->getForm();
 
         $form->handleRequest($request);

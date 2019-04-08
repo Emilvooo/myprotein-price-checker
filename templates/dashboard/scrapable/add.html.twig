@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Add scrapable product{% endblock %}
+{% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
 
 {% block body %}
-    <div class="row d-flex justify-content-between">
-        <div class="p-2">
-            <h2>Add scrapable product</h2>
+    <div class="row mb-3">
+        <div class="col-10">
+            <h3 class="text-dark">Add scrapable product</h3>
         </div>
-        <div class="p-2">
-            <a class="btn btn-primary" href="/dashboard" role="button">Back</a>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="/" role="button">Back</a>
         </div>
     </div>
     {{ form(form) }}

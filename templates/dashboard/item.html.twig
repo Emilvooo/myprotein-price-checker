@@ -1,38 +1,57 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ product.name }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .chart {
+            width: 100%;
+            min-height: 450px;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <div class="row d-flex justify-content-between">
-        <div class="p-2">
-            <h2><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></h2>
+    <div class="row">
+        <div class="col-10">
+            <h3><a href="{{ product.url }}" target="_blank" class="text-dark">{{ product.name }}</a></h3>
         </div>
-        <div class="p-2">
-            <a class="btn btn-primary" href="/" role="button">Back</a>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="/" role="button">Back</a>
         </div>
     </div>
-    <h3>Graph</h3>
-    <div id="div_chart" class="mt-3"></div>
-    <h3>History</h3>
-    <table class="table mt-3">
-        <thead>
-        <tr>
-            <th scope="col">Price</th>
-            <th scope="col">Date</th>
-        </tr>
-        </thead>
-        <tbody>
-            {% for price in prices|sort|reverse %}
-                <tr>
-                    <td>
-                        €{{ (price.price / 100)|round(2) }} <br />
-                        <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
-                    </td>
-                    <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="row mt-3">
+        <div class="col">
+            <h4 class="mb-3">Graph</h4>
+            <div id="div_chart" class="chart"></div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h4 class="mb-3">History</h4>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped">
+                    <caption>{{ product.name }}</caption>
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Price</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for price in prices|sort|reverse %}
+                        <tr>
+                            <td>
+                                €{{ (price.price / 100)|round(2) }} <br />
+                                <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
+                            </td>
+                            <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         {{ gc_draw(linechart, 'div_chart') }}

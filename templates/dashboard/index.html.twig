@@ -1,38 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
-
 {% block body %}
-    <div class="row d-flex justify-content-between">
-        <div class="p-2">
-            <h2><a href="/">Dashboard - Products</a></h2>
+    {% for message in app.flashes('notice') %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
         </div>
-        <div class="p-2">
-            <a class="btn btn-primary" href="/scrapable/add" role="button">Add scrapable product</a>
+    {% endfor %}
+    <div class="row">
+        <div class="col-10">
+            <h3><a href="/" class="text-dark">Products</a></h3>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="/scrapable/add" role="button">Add scrapable product</a>
         </div>
     </div>
-    <table class="table mt-3">
-        <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Price</th>
-            <th scope="col">Date</th>
-            <th scope="col"></th>
-        </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-                {% set price = product.prices|last %}
-                <tr>
-                    <td><a href="{{ product.url }}" target="_blank">{{ product.name }}</a></td>
-                    <td>
-                        €{{ (price.price / 100)|round(2) }} <br />
-                        <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
-                    </td>
-                    <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                    <td><a class="btn btn-primary mb-3" href="product/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="row mt-3">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-sm table-striped">
+                    <caption>List of products</caption>
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Date</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        {% set price = product.prices|last %}
+                        <tr>
+                            <td><a href="{{ product.url }}" target="_blank" class="text-dark">{{ product.name }}</a></td>
+                            <td>
+                                €{{ (price.price / 100)|round(2) }} <br />
+                                <strong>€{{ (price.price / 100 * 0.65)|round(2) }}</strong> (35% discount)
+                            </td>
+                            <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
+                            <td><a class="btn btn-dark mb-3" href="product/{{ product.id }}" role="button"><i class="fas fa-info-circle"></i></a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

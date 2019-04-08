@@ -20,8 +20,8 @@ class GoogleChartService
 
         $lineChart->getOptions()->setTitle($product->getName());
         $lineChart->getOptions()->setCurveType('function');
-        $lineChart->getOptions()->setHeight(500);
-        $lineChart->getOptions()->setWidth(1100);
+        $lineChart->getOptions()->setHeight('auto');
+        $lineChart->getOptions()->setWidth('auto');
 
         return $lineChart;
     }
