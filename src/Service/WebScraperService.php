@@ -52,6 +52,7 @@ class WebScraperService
         $product = new Product();
         $product->setName($productVariation['name']);
         $product->setUrl($productVariation['url']);
+        $product->setSlug(str_replace(' ', '', strtolower($productVariation['name'])));
 
         $this->entityManager->persist($product);
         $this->entityManager->flush();

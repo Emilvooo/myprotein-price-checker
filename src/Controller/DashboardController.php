@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractController
 {
     /**
-     * @Route("/", name="dashboard_index")
+     * @Route("/", name="product_overview")
      * @param ProductRepository $productRepository
      * @return Response
      */
@@ -31,7 +31,7 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * @Route("product/{id}", name="dashboard_product")
+     * @Route("/products/{slug}", name="product_show")
      *
      */
     public function item(Product $product, GoogleChartService $googleChartService)
@@ -48,7 +48,7 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * @Route("/scrapable/add", name="dashboard_scrapable_product_add")
+     * @Route("/scrapable/add", name="scrapable_product_add")
      */
     public function addScrapableProduct(Request $request)
     {
@@ -57,7 +57,7 @@ class DashboardController extends AbstractController
         $form = $this->createFormBuilder($scrapableProduct)
             ->add('url', TextType::class,
                 [
-                    'label' => 'URL: ',
+                    'label' => 'URL',
                 ]
             )
             ->add('submit', SubmitType::class,
