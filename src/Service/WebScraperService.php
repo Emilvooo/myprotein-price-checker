@@ -73,10 +73,9 @@ class WebScraperService
             }
         }
 
-
         $price = new Price();
         $price->setPrice($productVariation['price'] * 100);
-        $price->setDate(new \DateTime('now'));
+        $price->setDate(new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')));
         $price->setProduct($product);
 
         $this->entityManager->persist($price);
