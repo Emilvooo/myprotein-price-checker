@@ -13,12 +13,14 @@ class WebScraperService
     private $client;
     private $entityManager;
     private $productRepository;
+    private $mailer;
 
-    public function __construct(EntityManagerInterface $entityManager, ProductRepository $productRepository)
+    public function __construct(EntityManagerInterface $entityManager, ProductRepository $productRepository, \Swift_Mailer $mailer)
     {
         $this->client = new Client();
         $this->entityManager = $entityManager;
         $this->productRepository = $productRepository;
+        $this->mailer = $mailer;
     }
 
     public function processData()
@@ -64,12 +66,14 @@ class WebScraperService
 
     public function setPrice(Product $product, $productVariation)
     {
-        $dateToday = new \DateTime('now');
+        $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
         if (!empty($product->getPrices()->last())) {
             if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
-                if (intval($productVariation['price'] * 100) == $product->getPrices()->last()->getPrice()) {
-                    return;
+                if (intval($productVariation['price'] * 100) !== $product->getPrices()->last()->getPrice()) {
+                    $this->sendPriceChangedMail($product);
                 }
+
+                return;
             }
         }
 
@@ -80,5 +84,18 @@ class WebScraperService
 
         $this->entityManager->persist($price);
         $this->entityManager->flush();
+    }
+
+    public function sendPriceChangedMail(Product $product)
+    {
+        $message = (new \Swift_Message('Price of product ' . $product->getName() . ' changed!'))
+            ->setFrom('test@myprotein-price-checker.com')
+            ->setTo('emilveldhuizen@gmail.com')
+            ->setBody(
+                'The price of this product is now €' . round($product->getPrices()->last()->getPrice() / 100 * 0.65, 2) . ' with 35% discount!'
+            );
+
+        $numSent = $this->mailer->send($message, $errors);
+        printf("Sent %d messages\n", $numSent);
     }
 }
