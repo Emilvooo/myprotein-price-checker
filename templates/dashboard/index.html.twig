@@ -29,7 +29,7 @@
                     </thead>
                     <tbody>
                     {% for product in products %}
-                        {% set price = product.prices|last %}
+                        {% set price = product.prices|first %}
                         <tr>
                             <td><a href="{{ product.url }}" target="_blank" class="text-dark">{{ product.name }}</a></td>
                             <td>
