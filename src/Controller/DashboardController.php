@@ -89,7 +89,7 @@ class DashboardController extends AbstractController
                 'Your changes were saved!'
             );
 
-            return $this->redirectToRoute('dashboard_index');
+            return $this->redirectToRoute('product_overview');
         }
 
         return $this->render('dashboard/scrapable/add.html.twig', [
