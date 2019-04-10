@@ -69,11 +69,11 @@ class WebScraperService
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
         if (!empty($product->getPrices()->last())) {
             if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
-                if (intval($productVariation['price'] * 100) !== $product->getPrices()->last()->getPrice()) {
-                    $this->sendPriceChangedMail($product);
+                if (intval($productVariation['price'] * 100) == $product->getPrices()->last()->getPrice()) {
+                    return;
                 }
 
-                return;
+                $this->sendPriceChangedMail($product);
             }
         }
 
