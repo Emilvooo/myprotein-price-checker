@@ -30,7 +30,6 @@ class Product
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="product")
-     * @ORM\OrderBy({"date" = "DESC"})
      */
     private $prices;
 

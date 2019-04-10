@@ -21,7 +21,7 @@
                     <caption>List of products</caption>
                     <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Name</th>
+                        <th scope="col">{{ knp_pagination_sortable(products, 'Name', 'name') }}</th>
                         <th scope="col">Price</th>
                         <th scope="col">Date</th>
                         <th scope="col"></th>
@@ -29,7 +29,7 @@
                     </thead>
                     <tbody>
                     {% for product in products %}
-                        {% set price = product.prices|first %}
+                        {% set price = product.prices|last %}
                         <tr>
                             <td><a href="{{ product.url }}" target="_blank" class="text-dark">{{ product.name }}</a></td>
                             <td>
