@@ -7,6 +7,7 @@ use App\Entity\ScrapeableProduct;
 use App\Repository\ProductRepository;
 use App\Service\GoogleChartService;
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\LineChart;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,9 +22,15 @@ class DashboardController extends AbstractController
      * @param ProductRepository $productRepository
      * @return Response
      */
-    public function index(ProductRepository $productRepository)
+    public function index(Request $request, ProductRepository $productRepository, PaginatorInterface $paginator)
     {
-        $products = $productRepository->findAll();
+        $allProducts = $productRepository->findAll();
+
+        $products = $paginator->paginate(
+            $allProducts,
+            $request->query->getInt('page', 1),
+            20
+        );
 
         return $this->render('dashboard/index.html.twig',
             ['products' => $products]
