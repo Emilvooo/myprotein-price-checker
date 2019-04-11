@@ -4,7 +4,9 @@ namespace App\Service;
 use App\Entity\Price;
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
+use App\Entity\Variation;
 use App\Repository\ProductRepository;
+use App\Repository\VariationRepository;
 use Goutte\Client;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -13,86 +15,112 @@ class WebScraperService
     private $client;
     private $entityManager;
     private $productRepository;
+    private $variationRepository;
     private $mailer;
 
-    public function __construct(EntityManagerInterface $entityManager, ProductRepository $productRepository, \Swift_Mailer $mailer)
+    public function __construct(EntityManagerInterface $entityManager, ProductRepository $productRepository, VariationRepository $variationRepository ,\Swift_Mailer $mailer)
     {
         $this->client = new Client();
         $this->entityManager = $entityManager;
         $this->productRepository = $productRepository;
+        $this->variationRepository = $variationRepository;
         $this->mailer = $mailer;
     }
 
     public function processData()
     {
-        $products = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
-        foreach ($products as $product) {
+        $scrapableProducts = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
+        foreach ($scrapableProducts as $product) {
             $crawler = $this->client->request('GET', $product->getUrl());
-            $productVariations = json_decode($crawler->filterXpath('//script[contains(., "offers")]')->text(), true)['offers'];
-            foreach ($productVariations as $productVariation) {
-                $crawler = $this->client->request('GET', 'https://nl.myprotein.com/'.$productVariation['sku'].'.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
-                $productVariation['name'] = $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt');
-                if (!empty($productVariation)) {
-                    $product = $this->addProduct($productVariation);
-                    $this->setPrice($product, $productVariation);
-                }
+
+            $product = json_decode($crawler->filterXpath('//script[@type="application/ld+json"]')->text(), true);
+            $variations = json_decode($crawler->filterXpath('//script[@type="application/ld+json"]')->text(), true)['offers'];
+
+            $product = $this->addProduct($product);
+            if (!empty($product)) {
+                $this->addVariations($variations, $product);
             }
         }
     }
 
-    public function addProduct($productVariation)
+    public function addProduct($product)
     {
-        $products = $this->productRepository->findAll();
-        if (!empty($products)) {
-            foreach ($products as $product) {
-                if ($product->getName() === $productVariation['name']) {
-                    return $product;
-                }
-            }
+        if (empty($product)) {
+            return null;
         }
 
-        $product = new Product();
-        $product->setName($productVariation['name']);
-        $product->setUrl($productVariation['url']);
-        $product->setSlug(str_replace(' ', '', strtolower($productVariation['name'])));
+        if ($productObj = $this->productRepository->findOneBy(['name' => $product['name']])) {
+            return $productObj;
+        }
 
-        $this->entityManager->persist($product);
+        $productObj = new Product();
+        $productObj->setName($product['name']);
+        $productObj->setSlug(str_replace(' ', '', strtolower($productObj->getName())));
+
+        $this->entityManager->persist($productObj);
         $this->entityManager->flush();
 
-        $product = $this->productRepository->findOneBy(['name' => $productVariation['name']]);
-
-        return $product;
+        return $productObj;
     }
 
-    public function setPrice(Product $product, $productVariation)
+    public function addVariations($variations, Product $product)
+    {
+        if (empty($variations) || is_null($product)) {
+            return null;
+        }
+
+        foreach ($variations as $variation) {
+            if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
+                $this->addPrice($variationObj, $variation['price']);
+                continue;
+            }
+
+            $crawler = $this->client->request('GET', 'https://nl.myprotein.com/' . $variation['sku'] . '.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
+
+            $variationObj = new Variation();
+            $variationObj->setName(str_replace(['New -', 'New –'], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
+            $variationObj->setUrl($variation['url']);
+            $variationObj->setSlug(str_replace(' ', '', strtolower($variationObj->getName())));
+            $variationObj->setProduct($product);
+
+            $this->entityManager->persist($variationObj);
+            $this->entityManager->flush();
+
+            if ($variationObj->getId()) {
+                $this->addPrice($variationObj, $variation['price']);
+            }
+        }
+    }
+
+    public function addPrice(Variation $variation, $variationPrice)
     {
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
-        if (!empty($product->getPrices()->last())) {
-            if ($dateToday->format('Y-m-d') == $product->getPrices()->last()->getDate()->format('Y-m-d')) {
-                if (intval($productVariation['price'] * 100) == $product->getPrices()->last()->getPrice()) {
+        if (!empty($variation->getPrices()->first())) {
+            if ($dateToday->format('Y-m-d') == $variation->getPrices()->last()->getDate()->format('Y-m-d')) {
+                if (intval($variationPrice * 100) == $variation->getPrices()->last()->getPrice()) {
                     return;
                 }
 
-                $this->sendPriceChangedMail($product);
+                $this->sendMail($variation, $variationPrice);
             }
         }
 
-        $price = new Price();
-        $price->setPrice($productVariation['price'] * 100);
-        $price->setDate(new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')));
-        $price->setProduct($product);
+        $priceObj = new Price();
+        $priceObj->setPrice($variationPrice * 100);
+        $priceObj->setDate($dateToday);
+        $priceObj->setVariation($variation);
 
-        $this->entityManager->persist($price);
+        $this->entityManager->persist($priceObj);
         $this->entityManager->flush();
     }
 
-    public function sendPriceChangedMail(Product $product)
+    public function sendMail(Variation $variation, $variationPrice)
     {
-        $message = (new \Swift_Message('Price of product ' . $product->getName() . ' changed!'))
+        $message = (new \Swift_Message('Price of product ' . $variation->getName() . ' changed!'))
             ->setFrom('test@myprotein-price-checker.com')
             ->setTo('emilveldhuizen@gmail.com')
             ->setBody(
-                'The price of this product is now €' . round($product->getPrices()->last()->getPrice() / 100 * 0.65, 2) . ' with 35% discount!'
+                'The price of this product is now €' . $variationPrice . ' with 35% discount!'
             );
 
         $numSent = $this->mailer->send($message, $errors);

@@ -24,14 +24,9 @@ class Product
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product")
      */
-    private $url;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="product")
-     */
-    private $prices;
+    private $variations;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -40,7 +35,7 @@ class Product
 
     public function __construct()
     {
-        $this->prices = new ArrayCollection();
+        $this->variations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,43 +55,31 @@ class Product
         return $this;
     }
 
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
     /**
-     * @return Collection|Price[]
+     * @return Collection|Variation[]
      */
-    public function getPrices(): Collection
+    public function getVariations(): Collection
     {
-        return $this->prices;
+        return $this->variations;
     }
 
-    public function addPrice(Price $price): self
+    public function addVariation(Variation $variation): self
     {
-        if (!$this->prices->contains($price)) {
-            $this->prices[] = $price;
-            $price->setProduct($this);
+        if (!$this->variations->contains($variation)) {
+            $this->variations[] = $variation;
+            $variation->setProduct($this);
         }
 
         return $this;
     }
 
-    public function removePrice(Price $price): self
+    public function removeVariation(Variation $variation): self
     {
-        if ($this->prices->contains($price)) {
-            $this->prices->removeElement($price);
+        if ($this->variations->contains($variation)) {
+            $this->variations->removeElement($variation);
             // set the owning side to null (unless already changed)
-            if ($price->getProduct() === $this) {
-                $price->setProduct(null);
+            if ($variation->getProduct() === $this) {
+                $variation->setProduct(null);
             }
         }
 

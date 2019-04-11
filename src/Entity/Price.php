@@ -27,10 +27,9 @@ class Price
     private $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="prices")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Variation", inversedBy="prices")
      */
-    private $product;
+    private $variation;
 
     public function getId(): ?int
     {
@@ -61,14 +60,14 @@ class Price
         return $this;
     }
 
-    public function getProduct(): ?Product
+    public function getVariation(): ?Variation
     {
-        return $this->product;
+        return $this->variation;
     }
 
-    public function setProduct(?Product $product): self
+    public function setVariation(?Variation $variation): self
     {
-        $this->product = $product;
+        $this->variation = $variation;
 
         return $this;
     }

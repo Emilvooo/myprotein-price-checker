@@ -4,10 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
+use App\Entity\Variation;
 use App\Repository\ProductRepository;
 use App\Service\GoogleChartService;
-use CMEN\GoogleChartsBundle\GoogleCharts\Charts\LineChart;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,40 +14,48 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DashboardController extends AbstractController
+class ProductsController extends AbstractController
 {
     /**
-     * @Route("/", name="product_overview")
+     * @Route("/", name="products_index")
      * @param ProductRepository $productRepository
      * @return Response
      */
-    public function index(Request $request, ProductRepository $productRepository, PaginatorInterface $paginator)
+    public function index(ProductRepository $productRepository)
     {
-        $allProducts = $productRepository->findAll();
+        $products = $productRepository->findAll();
 
-        $products = $paginator->paginate(
-            $allProducts,
-            $request->query->getInt('page', 1),
-            20
-        );
-
-        return $this->render('dashboard/index.html.twig',
+        return $this->render('products/index.html.twig',
             ['products' => $products]
         );
     }
 
     /**
-     * @Route("/products/{slug}", name="product_show")
-     *
+     * @Route("/variations/{slug}", name="products_item")
+     * @param Product $product
+     * @return Response
      */
-    public function item(Product $product, GoogleChartService $googleChartService)
+    public function item(Product $product)
     {
-        $lineChart = $googleChartService->createLineChart($product);
+        return $this->render('products/item.html.twig',
+            ['product' => $product,]
+        );
+    }
 
-        return $this->render('dashboard/item.html.twig',
+    /**
+     * @Route("/products/{slug}", name="product_detail")
+     * @param Variation $variation
+     * @param GoogleChartService $googleChartService
+     * @return Response
+     */
+    public function detail(Variation $variation, GoogleChartService $googleChartService)
+    {
+        $lineChart = $googleChartService->createLineChart($variation);
+
+        return $this->render('products/variation/item.html.twig',
             [
-                'product' => $product,
-                'prices' => $product->getPrices(),
+                'variation' => $variation,
+                'product' => $variation->getProduct(),
                 'linechart' => $lineChart
             ]
         );
@@ -60,7 +67,6 @@ class DashboardController extends AbstractController
     public function addScrapableProduct(Request $request)
     {
         $scrapableProduct = new ScrapeableProduct();
-
         $form = $this->createFormBuilder($scrapableProduct)
             ->add('url', TextType::class,
                 [
@@ -74,25 +80,19 @@ class DashboardController extends AbstractController
                 ]
             )
             ->getForm();
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $scrapableProduct = $form->getData();
-
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($scrapableProduct);
             $entityManager->flush();
-
             $this->addFlash(
                 'notice',
                 'Your changes were saved!'
             );
-
-            return $this->redirectToRoute('product_overview');
+            return $this->redirectToRoute('products_index');
         }
-
-        return $this->render('dashboard/scrapable/add.html.twig', [
+        return $this->render('scrapable/add.html.twig', [
             'form' => $form->createView()
         ]);
     }
