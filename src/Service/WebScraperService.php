@@ -55,6 +55,7 @@ class WebScraperService
 
         $productObj = new Product();
         $productObj->setName($product['name']);
+        $productObj->setDescription($product['description']);
         $productObj->setSlug(str_replace(' ', '', strtolower($productObj->getName())));
 
         $this->entityManager->persist($productObj);

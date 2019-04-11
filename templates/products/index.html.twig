@@ -21,11 +21,11 @@
     </div>
     <div class="row mt-3">
         {% for product in products %}
-        <div class="col-sm-4 mb-3">
+        <div class="col-sm-4 d-flex align-items-stretch mb-3">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title"><a href="{{ path('products_item', {slug: product.slug}) }}" class="text-dark">{{ product.name }}</a> </h5>
-                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <p class="card-text">{{ product.description|raw }}</p>
                 </div>
             </div>
         </div>
