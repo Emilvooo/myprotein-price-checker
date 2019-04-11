@@ -24,7 +24,7 @@
         <div class="col-sm-4 d-flex align-items-stretch mb-3">
             <div class="card border-light">
                 <div class="card-header bg-dark">
-                    <a href="{{ path('products_item', {slug: product.slug}) }}" class="text-white">{{ product.name }}</a>
+                    <a href="{{ path('products_item', {slug: product.slug}) }}" class="text-white">{{ product.name }} ({{ product.variations|length }})</a>
                 </div>
                 <div class="card-body text-dark">
                     <p class="card-text">{{ product.description|raw }}</p>
