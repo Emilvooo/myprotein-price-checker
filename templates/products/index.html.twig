@@ -3,6 +3,12 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
+    <style>
+        .list-group-item {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -20,18 +26,18 @@
         </div>
     </div>
     <div class="row mt-3">
-        {% for product in products %}
-        <div class="col-sm-4 d-flex align-items-stretch mb-3">
-            <div class="card border-light">
-                <div class="card-header bg-dark">
-                    <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-white">{{ product.name }} ({{ product.variations|length }})</a>
-                </div>
-                <div class="card-body text-dark">
-                    <p class="card-text">{{ product.description|raw }}</p>
-                    <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="btn btn-dark">See products</a>
-                </div>
+        <div class="col">
+            <div class="list-group list-group-flush">
+                {% for product in products %}
+                    <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ product.name }}</h5>
+                            <small class="text-muted">variations: {{ product.variations|length }}</small>
+                        </div>
+                        <p class="mb-3">{{ product.description|raw|slice(0, 510) }}</p>
+                    </a>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
     </div>
 {% endblock %}
