@@ -85,11 +85,20 @@ class ProductsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $scrapableProduct = $form->getData();
+            if (!strpos($scrapableProduct->getUrl(), 'myprotein.com')) {
+                $this->addFlash(
+                    'danger',
+                    'Your changes were not saved!'
+                );
+
+                return $this->redirectToRoute('products_index');
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($scrapableProduct);
             $entityManager->flush();
             $this->addFlash(
-                'notice',
+                'success',
                 'Your changes were saved!'
             );
 
