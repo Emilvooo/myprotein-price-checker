@@ -17,13 +17,13 @@
 <div class="row mt-3">
     <div class="col">
         <div class="table-responsive">
-            <table class="table table-striped" data-toggle="table" data-pagination="true" data-search="true">
+            <table class="table bg-white border-0" data-toggle="table" data-pagination="true" data-search="true">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" data-sortable="true" data-field="name">Name</th>
                     <th scope="col" data-sortable="true" data-field="price" data-sorter="totalCurrencySort">Price</th>
                     <th scope="col" data-sortable="true" data-field="date">Date</th>
-                    <th scope="col"></th>
+                    <th scope="col">History</th>
                 </tr>
                 </thead>
                 <tbody class="table-borderless">
@@ -33,7 +33,7 @@
                         <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
                         <td>€{{ price.price / 100 }}</td>
                         <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                        <td><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
+                        <td class="text-center"><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

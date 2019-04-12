@@ -23,14 +23,14 @@
     </div>
     <div class="row mt-3">
         <div class="col">
-            <div class="list-group list-group-flush">
+            <div class="list-group">
                 {% for product in products %}
-                    <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="list-group-item list-group-item-action">
+                    <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="list-group-item list-group-item-action text-dark border-0 bg-white mb-3">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{ product.name }}</h5>
                             <small class="text-muted">variations: {{ product.variations|length }}</small>
                         </div>
-                        <p class="mb-3">{{ product.description|raw|slice(0, 510) }}</p>
+                        <p class="mb-3">{{ product.description|slice(0, 510)|raw }}</p>
                     </a>
                 {% endfor %}
             </div>

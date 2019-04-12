@@ -51,7 +51,7 @@ class ProductsController extends AbstractController
                     'linechart' => $lineChart
                 ]
             );
-        }
+        };
 
         return $this->render('products/item.html.twig',
             ['product' => $product,]

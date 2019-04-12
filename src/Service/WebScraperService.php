@@ -46,6 +46,7 @@ class WebScraperService
             $variations = json_decode($crawler->filterXpath('//script[@type="application/ld+json"]')->text(), true)['offers'];
 
             $product = $this->addProduct($product);
+            printf("Checking %s...\n", $product->getName());
             if (!empty($product)) {
                 $this->addVariations($variations, $product);
             }
@@ -69,6 +70,8 @@ class WebScraperService
 
         $this->entityManager->persist($productObj);
         $this->entityManager->flush();
+
+        printf("Added %s...\n", $productObj->getName());
 
         return $productObj;
     }
@@ -96,6 +99,8 @@ class WebScraperService
             $this->entityManager->persist($variationObj);
             $this->entityManager->flush();
 
+            printf("Added %s...\n", $variationObj->getName());
+
             if ($variationObj->getId()) {
                 $this->addPrice($variationObj, $variation['price']);
             }
@@ -122,6 +127,8 @@ class WebScraperService
 
         $this->entityManager->persist($priceObj);
         $this->entityManager->flush();
+
+        printf("Added a price to %s...\n", $variation->getName());
     }
 
     public function sendMail(Variation $variation, $variationPrice)
@@ -142,6 +149,6 @@ class WebScraperService
         ;
 
         $numSent = $this->mailer->send($message, $errors);
-        printf("Sent %d messages\n", $numSent);
+        printf("Sent %d message\n", $numSent);
     }
 }
