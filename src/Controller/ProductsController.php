@@ -41,7 +41,7 @@ class ProductsController extends AbstractController
     public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation)
     {
         if (!empty($variation)) {
-            $variation = $variationRepository->findOneBy(['slug' => $variation]);
+            $variation = $variationRepository->findOneBy(['product' => $product->getId(), 'slug' => $variation]);
             $lineChart = $googleChartService->createLineChart($variation);
 
             return $this->render('variation/item.html.twig',
