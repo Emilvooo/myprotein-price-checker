@@ -9,6 +9,7 @@ use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
 use Goutte\Client;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
 class WebScraperService
 {
@@ -17,13 +18,21 @@ class WebScraperService
     private $productRepository;
     private $variationRepository;
     private $mailer;
+    private $templating;
 
-    public function __construct(EntityManagerInterface $entityManager, ProductRepository $productRepository, VariationRepository $variationRepository ,\Swift_Mailer $mailer)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ProductRepository $productRepository,
+        VariationRepository $variationRepository,
+        EngineInterface $templating,
+        \Swift_Mailer $mailer
+    )
     {
         $this->client = new Client();
         $this->entityManager = $entityManager;
         $this->productRepository = $productRepository;
         $this->variationRepository = $variationRepository;
+        $this->templating = $templating;
         $this->mailer = $mailer;
     }
 
@@ -79,9 +88,9 @@ class WebScraperService
             $crawler = $this->client->request('GET', 'https://nl.myprotein.com/' . $variation['sku'] . '.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
 
             $variationObj = new Variation();
-            $variationObj->setName(str_replace(['New -', 'New –'], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
+            $variationObj->setName(str_replace(['New -', 'New –', $product->getName() . ' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
             $variationObj->setUrl($variation['url']);
-            $variationObj->setSlug(str_replace(' ', '', strtolower($variationObj->getName())));
+            $variationObj->setSlug(str_replace([' '], '', strtolower($variationObj->getName())));
             $variationObj->setProduct($product);
 
             $this->entityManager->persist($variationObj);
@@ -117,12 +126,20 @@ class WebScraperService
 
     public function sendMail(Variation $variation, $variationPrice)
     {
-        $message = (new \Swift_Message('Price of product ' . $variation->getName() . ' changed!'))
-            ->setFrom('test@myprotein-price-checker.com')
+        $message = (new \Swift_Message('Price of product ' . $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' changed!'))
+            ->setFrom('info@myprotein-price-checker.com')
             ->setTo('emilveldhuizen@gmail.com')
             ->setBody(
-                'The price of this product is now €' . $variationPrice . ' with 35% discount!'
-            );
+                $this->templating->render(
+                    'emails/price_changed.html.twig',
+                    [
+                        'variation' => $variation,
+                        'newPrice' => $variationPrice
+                    ]
+                ),
+                'text/html'
+            )
+        ;
 
         $numSent = $this->mailer->send($message, $errors);
         printf("Sent %d messages\n", $numSent);
