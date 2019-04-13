@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
+use App\Form\ScrapableProductType;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
+use App\Service\FormHandlerService;
 use App\Service\GoogleChartService;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -61,48 +63,30 @@ class ProductsController extends AbstractController
     /**
      * @Route("/products/add", name="products_add")
      * @param Request $request
+     * @param FormHandlerService $formHandlerService
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function addProduct(Request $request)
+    public function addProduct(Request $request, FormHandlerService $formHandlerService)
     {
         $scrapableProduct = new ScrapeableProduct();
-
-        $form = $this->createFormBuilder($scrapableProduct)
-            ->add('url', TextType::class,
-                [
-                    'label' => 'URL',
-                ]
-            )
-            ->add('submit', SubmitType::class,
-                [
-                    'label' => 'Submit',
-                    'attr' => ['class' => 'btn-dark']
-                ]
-            )
-            ->getForm();
+        $form = $this->createForm(ScrapableProductType::class, $scrapableProduct);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $scrapableProduct = $form->getData();
-            if (!strpos($scrapableProduct->getUrl(), 'myprotein.com')) {
+            $formHandler = $formHandlerService->formHandler($form);
+            if ($formHandler) {
                 $this->addFlash(
-                    'danger',
-                    'Your changes were not saved!'
+                    'success',
+                    'Your changes were saved!'
                 );
 
                 return $this->redirectToRoute('products_index');
             }
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($scrapableProduct);
-            $entityManager->flush();
             $this->addFlash(
-                'success',
-                'Your changes were saved!'
+                'danger',
+                'Your changes were not saved!'
             );
-
-            return $this->redirectToRoute('products_index');
         }
 
         return $this->render('products/add.html.twig', [

@@ -31,12 +31,12 @@
                         <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark"><h5 class="card-title">{{ product.name }}</h5></a>
                         <p class="card-text">{{ product.description|slice(0, 300)|raw }}</p>
                     </div>
-                    <div class="card-footer text-muted bg-dark rounded-0 p-2">
-                        <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="btn btn-sm btn-light center">
-                           See more
+                    <div class="card-footer text-muted bg-dark rounded-0 p-1">
+                        <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="btn btn-sm btn-dark center">
+                            <strong>See more</strong>
                         </a>
                         <div class="float-right">
-                            <span class="badge badge-light">amount: {{ product.variations|length }}</span>
+                            <span class="badge badge-dark">amount: {{ product.variations|length }}</span>
                         </div>
                     </div>
                 </div>
