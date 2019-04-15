@@ -11,7 +11,7 @@ class GoogleChartService
 
         $priceHistory[] = ['Date', 'Price'];
         foreach ($variation->getPrices() as $key => $price) {
-            $priceHistory[$key + 1] = [$price->getDate()->format('Y-m-d'), $price->getPrice() / 100 * 0.65];
+            $priceHistory[$key + 1] = [$price->getDate()->format('Y-m-d'), $price->getPrice() / 100];
         }
 
         $lineChart->getData()->setArrayToDataTable(

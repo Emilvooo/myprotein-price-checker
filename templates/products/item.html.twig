@@ -16,28 +16,32 @@
 </div>
 <div class="row mt-3">
     <div class="col">
-        <div class="table-responsive">
-            <table class="table bg-white border-0" data-toggle="table" data-pagination="true" data-search="true">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col" data-sortable="true" data-field="name">Name</th>
-                    <th scope="col" data-sortable="true" data-field="price" data-sorter="totalCurrencySort">Price</th>
-                    <th scope="col" data-sortable="true" data-field="date">Date</th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody class="table-borderless">
-                {% for variation in product.variations %}
-                    {% set price = variation.prices|last %}
-                    <tr>
-                        <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
-                        <td>€{{ price.price / 100 }}</td>
-                        <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                        <td class="text-center"><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table bg-white border-0" data-toggle="table" data-pagination="true" data-search="true">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" data-sortable="true" data-field="name">Name</th>
+                            <th scope="col" data-sortable="true" data-field="price" data-sorter="totalCurrencySort">Price</th>
+                            <th scope="col" data-sortable="true" data-field="date">Date</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-borderless">
+                        {% for variation in product.variations %}
+                            {% set price = variation.prices|last %}
+                            <tr>
+                                <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
+                                <td>€{{ price.price / 100 }}</td>
+                                <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
+                                <td class="text-center"><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
