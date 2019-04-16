@@ -25,22 +25,28 @@
     </div>
     <div class="row mt-3">
         {% for product in products %}
-            <div class="col-lg-4 col-md-6 d-flex align-items-stretch mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark"><h5 class="card-title">{{ product.name }}</h5></a>
-                        <p class="card-text">{{ product.description|slice(0, 200)|raw }}</p>
-                    </div>
-                    <div class="card-footer text-muted bg-white border-top border-light rounded-0 p-1">
-                       <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark ml-2 small">
-                           <strong>goto variations</strong>
-                       </a>
-                        <div class="float-right">
-                            <span class="badge badge-light text-dark mr-1">amount: {{ product.variations|length }}</span>
+            {% set mostRecentVariation = product.variations|last %}
+            {% set mostRecentPrice = mostRecentVariation.prices|last %}
+                <div class="col-lg-4 col-md-6 py-2  d-flex align-items-stretch">
+                    <div class="card bg-white shadow-sm">
+                        <div class="card-body">
+                            <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                            </a>
+                            <p class="card-text">{{ product.description|slice(0, 200)|raw }}</p>
+                        </div>
+                        <div class="card-footer border-0 bg-white">
+                            <small class="text-muted">
+                                <div class="float-right">
+                                    <span class="badge badge-dark">amount: {{ product.variations|length }}</span>
+                                </div>
+                                <div class="float-left">
+                                    <span class="badge badge-dark">last updated: {{ mostRecentPrice.date|date('M-d G:i') }}</span>
+                                </div>
+                            </small>
                         </div>
                     </div>
                 </div>
-            </div>
         {% endfor %}
     </div>
 {% endblock %}
