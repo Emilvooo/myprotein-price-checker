@@ -25,7 +25,7 @@
     </div>
     <div class="row mt-3">
         {% for product in products %}
-            {% set date = product.updateDate %}
+            {% set updateDate = product.updateDate %}
             {% set product = product.product %}
             <div class="col-lg-4 col-md-6 py-2  d-flex align-items-stretch">
                 <div class="card bg-white shadow-sm">
@@ -41,7 +41,7 @@
                                 <span class="badge badge-dark">amount: {{ product.variations|length }}</span>
                             </div>
                             <div class="float-left">
-                                <span class="badge badge-dark">last updated: {{ date|date('M-d G:i') }}</span>
+                                <span class="badge badge-dark">last updated: {{ updateDate|date('M-d G:i') }}</span>
                             </div>
                         </small>
                     </div>
