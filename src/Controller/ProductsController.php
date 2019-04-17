@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\ProductWithUpdateDate;
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
 use App\Form\ScrapableProductType;
@@ -9,8 +10,7 @@ use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
 use App\Service\FormHandlerService;
 use App\Service\GoogleChartService;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use App\Service\ProductTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,17 +21,18 @@ class ProductsController extends AbstractController
     /**
      * @Route("/", name="products_index")
      * @param ProductRepository $productRepository
+     * @param ProductTransformer $productTransformer
      * @return Response
      */
-    public function index(ProductRepository $productRepository)
+    public function index(ProductRepository $productRepository, ProductTransformer $productTransformer)
     {
         $products = $productRepository->findAll();
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
+        $productsWithUpdateDate = $productTransformer->transformProducts($products, $lastUpdatedVariations);
 
         return $this->render('products/index.html.twig',
             [
-                'products' => $products,
-                'lastUpdatedVariations' => $lastUpdatedVariations
+                'products' => $productsWithUpdateDate,
             ]
         );
     }
