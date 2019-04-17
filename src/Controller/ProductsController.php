@@ -26,9 +26,13 @@ class ProductsController extends AbstractController
     public function index(ProductRepository $productRepository)
     {
         $products = $productRepository->findAll();
+        $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
 
         return $this->render('products/index.html.twig',
-            ['products' => $products]
+            [
+                'products' => $products,
+                'lastUpdatedVariations' => $lastUpdatedVariations
+            ]
         );
     }
 

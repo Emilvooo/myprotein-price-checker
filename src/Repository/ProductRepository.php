@@ -19,6 +19,17 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    public function getLastUpdatedVariations()
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.name, MAX(pr.date) as date')
+            ->leftJoin('p.variations', 'v')
+            ->leftJoin('v.prices', 'pr')
+            ->groupBy('p.name')
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */
