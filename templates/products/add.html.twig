@@ -18,5 +18,13 @@
             <a class="btn btn-dark float-right" href="{{ path('products_index') }}" role="button"><i class="fas fa-backward"></i></a>
         </div>
     </div>
-    {{ form(form) }}
+    <div class="row">
+        <div class="col">
+            <div class="card bg-white shadow-sm">
+                <div class="card-body">
+                    {{ form(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
