@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\DTO\ProductWithUpdateDate;
 
-class ProductTransformer
+class ProductsTransformer
 {
-    public function transformProducts($products, $lastUpdatedVariations): array
+    public function transformProductsIntoDto($products, $lastUpdatedVariations): array
     {
         $productsWithUpdateDate = [];
         foreach ($products as $product) {
