@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
+
+{% block body %}
+    {% for label, messages in app.session.flashbag.all %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    <div class="row mb-3">
+        <div class="col-10">
+            <h3 class="text-dark">Add product</h3>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="{{ path('products_index') }}" role="button"><i class="fas fa-backward"></i></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card bg-white shadow-sm">
+                <div class="card-body">
+                    {{ form(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

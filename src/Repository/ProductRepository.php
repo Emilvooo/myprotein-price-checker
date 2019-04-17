@@ -19,17 +19,17 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getProductToday()
+    public function getLastUpdatedVariations()
     {
-        $today = new \DateTime('today');
-
         return $this->createQueryBuilder('p')
-            ->andWhere('p.date = :today')
-            ->setParameter('today', $today->format('d-m-Y'))
+            ->select('p.name, MAX(pr.date) as date')
+            ->leftJoin('p.variations', 'v')
+            ->leftJoin('v.prices', 'pr')
+            ->groupBy('p.name')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
+
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */

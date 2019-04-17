@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,19 +24,24 @@ class Product
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product")
      */
-    private $price;
+    private $variations;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $url;
+    private $slug;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="text")
      */
-    private $date;
+    private $description;
+
+    public function __construct()
+    {
+        $this->variations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -53,38 +60,57 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?int
+    /**
+     * @return Collection|Variation[]
+     */
+    public function getVariations(): Collection
     {
-        return $this->price;
+        return $this->variations;
     }
 
-    public function setPrice(int $price): self
+    public function addVariation(Variation $variation): self
     {
-        $this->price = $price;
+        if (!$this->variations->contains($variation)) {
+            $this->variations[] = $variation;
+            $variation->setProduct($this);
+        }
 
         return $this;
     }
 
-    public function getUrl(): ?string
+    public function removeVariation(Variation $variation): self
     {
-        return $this->url;
-    }
-
-    public function setUrl(string $url): self
-    {
-        $this->url = $url;
+        if ($this->variations->contains($variation)) {
+            $this->variations->removeElement($variation);
+            // set the owning side to null (unless already changed)
+            if ($variation->getProduct() === $this) {
+                $variation->setProduct(null);
+            }
+        }
 
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getSlug(): ?string
     {
-        return $this->date;
+        return $this->slug;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setSlug(string $slug): self
     {
-        $this->date = $date;
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

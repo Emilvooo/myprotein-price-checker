@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-10">
+            <h3><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ [product.name, variation.name]|join(' - ') }}</a></h3>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="{{ path('products_variation_index', {slug: product.slug}) }}" role="button"><i class="fas fa-backward"></i></a>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h4 class="mb-3">Graph</h4>
+            <div class="card">
+                <div class="card-body">
+                    <div class="col pt-3 bg-white">
+                        <div id="div_chart" class="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <h4 class="mb-3">History</h4>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm bg-white">
+                            <caption>{{ variation.name }}</caption>
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Price</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for price in variation.prices|sort|reverse %}
+                                <tr>
+                                    <td>
+                                        €{{ (price.price / 100)|round(2) }} <br />
+                                    </td>
+                                    <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        {{ gc_draw(linechart, 'div_chart') }}
+    </script>
+{% endblock %}

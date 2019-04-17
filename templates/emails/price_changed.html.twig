@@ -1,0 +1,8 @@
+{% set oldPrice = variation.prices|last %}
+The price of the product {{ [variation.product.name, variation.name]|join(' - ') }} changed.
+<br>
+Old price: <strong style="font-size: 15px">€{{ oldPrice.price / 100|round(2) }}</strong>
+<br>
+New price: <strong style="font-size: 15px">€{{ newPrice }}</strong>
+<br>
+<a href="https://myprotein-price-checker.herokuapp.com/variations/{{ variation.product.slug }}/{{ variation.slug }}">Check it out!</a>
