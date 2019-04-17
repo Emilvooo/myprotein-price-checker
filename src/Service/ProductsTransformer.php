@@ -7,9 +7,10 @@ use App\Entity\Product;
 
 class ProductsTransformer
 {
+    private $productsWithUpdateDate = [];
+
     public function transformProductsIntoDto($products, $lastUpdatedVariations): array
     {
-        $productsWithUpdateDate = [];
         /** @var Product $product */
         foreach ($products as $product) {
             $productWithUpdateDate = new ProductWithUpdateDate();
@@ -22,9 +23,31 @@ class ProductsTransformer
                 $productWithUpdateDate->setUpdateDate(new \DateTime($lastUpdatedVariation['date']));
             }
 
-            $productsWithUpdateDate[] = $productWithUpdateDate;
+            $this->productsWithUpdateDate[] = $productWithUpdateDate;
         }
 
-        return $productsWithUpdateDate;
+        return $this->productsWithUpdateDate;
+    }
+
+    public function mostRecentDate(): string
+    {
+        $mostRecent = '';
+
+        $updateDates = [];
+        /** @var ProductWithUpdateDate $productWithUpdateDate */
+        foreach ($this->productsWithUpdateDate as $productWithUpdateDate) {
+            $updateDates[] = $productWithUpdateDate->getUpdateDate()->format('Y-m-d H');
+        }
+
+        $allDatesAreTheSame = (count(array_unique($updateDates)) === 1);
+        if (!$allDatesAreTheSame) {
+            foreach ($updateDates as $updateDate) {
+                if ($updateDate > $mostRecent) {
+                    $mostRecent = $updateDate;
+                }
+            }
+        }
+
+        return $mostRecent;
     }
 }

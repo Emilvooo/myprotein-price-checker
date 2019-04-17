@@ -41,7 +41,11 @@
                                 <span class="badge badge-dark">amount: {{ product.variations|length }}</span>
                             </div>
                             <div class="float-left">
-                                <span class="badge badge-dark">last updated: {{ updateDate|date('M-d G:i') }}</span>
+                                 {% if updateDate|date('Y-m-d H') == mostRecentUpdateDate %}
+                                     <h6 class="m-0"><span class="badge badge-success">last updated: {{ updateDate|date('M-d G:i') }}</span></h6>
+                                 {% else %}
+                                     <span class="badge badge-dark">last updated: {{ updateDate|date('M-d G:i') }}</span>
+                                 {% endif %}
                             </div>
                         </small>
                     </div>
