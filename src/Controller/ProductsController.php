@@ -28,12 +28,10 @@ class ProductsController extends AbstractController
         $products = $productRepository->findAll();
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
         $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
-        $mostRecentUpdateDate = $productsTransformer->mostRecentDate();
 
         return $this->render('products/index.html.twig',
             [
                 'products' => $productsWithUpdateDate,
-                'mostRecentUpdateDate' => $mostRecentUpdateDate
             ]
         );
     }

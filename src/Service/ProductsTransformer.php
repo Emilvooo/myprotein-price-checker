@@ -26,6 +26,10 @@ class ProductsTransformer
             $this->productsWithUpdateDate[] = $productWithUpdateDate;
         }
 
+        usort($this->productsWithUpdateDate, function($a, $b) {
+            return $b->getUpdateDate() <=> $a->getUpdateDate();
+        });
+
         return $this->productsWithUpdateDate;
     }
 
