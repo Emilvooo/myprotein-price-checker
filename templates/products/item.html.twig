@@ -32,9 +32,14 @@
                         <tbody class="table-borderless">
                         {% for variation in product.variations %}
                             {% set price = variation.prices|last %}
+                            {% set difference = date(price.date|date('Y-m-d')).diff(date('now'|date('Y-m-d'))) %}
                             <tr>
                                 <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
-                                <td>€{{ price.price / 100 }}</td>
+                                {% if difference.days >= 2 %}
+                                    <td>out of stock!</td>
+                                {% else %}
+                                    <td>€{{ price.price / 100 }}</td>
+                                {% endif %}
                                 <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
                                 <td class="text-center"><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
                             </tr>
