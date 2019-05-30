@@ -23,7 +23,7 @@ class ProductsController extends AbstractController
      * @param ProductsTransformer $productsTransformer
      * @return Response
      */
-    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer)
+    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
     {
         $products = $productRepository->findAll();
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
@@ -44,7 +44,7 @@ class ProductsController extends AbstractController
      * @param string $variation
      * @return Response
      */
-    public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation)
+    public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation): Response
     {
         if (!empty($variation)) {
             $variation = $variationRepository->findOneBy(['product' => $product->getId(), 'slug' => $variation]);

@@ -13,7 +13,7 @@ class FormHandlerService
         $this->entityManager = $entityManager;
     }
 
-    public function formHandler(FormInterface $form)
+    public function formHandler(FormInterface $form): bool
     {
         if (!strpos($form->getData()->getUrl(), 'myprotein.com')) {
             return false;

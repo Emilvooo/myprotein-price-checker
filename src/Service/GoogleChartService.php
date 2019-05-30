@@ -5,7 +5,7 @@ use App\Entity\Variation;
 
 class GoogleChartService
 {
-    public function createLineChart(Variation $variation)
+    public function createLineChart(Variation $variation): \CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\LineChart
     {
         $lineChart = new \CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\LineChart();
 

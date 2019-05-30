@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class ScrapableProductType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('url', TextType::class, ['label' => 'URL',])

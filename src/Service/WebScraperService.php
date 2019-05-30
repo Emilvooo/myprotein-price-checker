@@ -36,7 +36,7 @@ class WebScraperService
         $this->mailer = $mailer;
     }
 
-    public function processData()
+    public function processData(): void
     {
         $scrapableProducts = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
         foreach ($scrapableProducts as $product) {
@@ -47,13 +47,13 @@ class WebScraperService
 
             $product = $this->addProduct($product);
             printf("Checking %s...\n", $product->getName());
-            if (!empty($product)) {
+            if ($product !== null) {
                 $this->addVariations($variations, $product);
             }
         }
     }
 
-    public function addProduct($product)
+    public function addProduct($product): ?Product
     {
         if (empty($product)) {
             return null;
@@ -76,11 +76,13 @@ class WebScraperService
         return $productObj;
     }
 
-    public function addVariations($variations, Product $product)
+    public function addVariations($variations, Product $product): void
     {
-        if (empty($variations) || is_null($product)) {
-            return null;
+        if (empty($variations) || $product === null) {
+            return;
         }
+
+        $existingVariations = $this->variationRepository->findBy(['product' => $product->getId()]);
 
         foreach ($variations as $variation) {
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
@@ -107,16 +109,25 @@ class WebScraperService
         }
     }
 
-    public function addPrice(Variation $variation, $variationPrice)
+    public function addPrice(Variation $variation, $variationPrice): void
     {
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
+        $dateTodayFormat = $dateToday->format('Y-m-d');
+
         if (!empty($variation->getPrices()->first())) {
-            if ($dateToday->format('Y-m-d') == $variation->getPrices()->last()->getDate()->format('Y-m-d')) {
-                if (intval($variationPrice * 100) == $variation->getPrices()->last()->getPrice()) {
+            $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
+
+            $dateDifference = $dateToday->diff($variation->getPrices()->last()->getDate());
+            if (substr($dateDifference->format('%r%a'), 1) >= 2) {
+                $this->sendMail($variation, '', 'back_in_stock');
+            }
+
+            if ($dateTodayFormat === $lastVariationPriceDateFormat) {
+                if ((int)($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
                     return;
                 }
 
-                $this->sendMail($variation, $variationPrice);
+                $this->sendMail($variation, $variationPrice, 'price_changed');
             }
         }
 
@@ -131,22 +142,25 @@ class WebScraperService
         printf("Added a price to %s...\n", $variation->getName());
     }
 
-    public function sendMail(Variation $variation, $variationPrice)
+    public function sendMail(Variation $variation, $variationPrice, $template): void
     {
-        $message = (new \Swift_Message('Price of product ' . $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' changed!'))
+        $subject = $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' is back in stock!';
+        $mailVars = ['variation' => $variation];
+        if ($template === 'price_changed') {
+            $subject = 'Price of product ' . $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' changed!';
+            $mailVars['newPrice'] = $variationPrice;
+        }
+
+        $message = (new \Swift_Message($subject))
             ->setFrom('info@myprotein-price-checker.com')
             ->setTo('emilveldhuizen@gmail.com')
             ->setBody(
                 $this->templating->render(
-                    'emails/price_changed.html.twig',
-                    [
-                        'variation' => $variation,
-                        'newPrice' => $variationPrice
-                    ]
+                    'emails/' . $template . '.html.twig',
+                    $mailVars
                 ),
                 'text/html'
-            )
-        ;
+            );
 
         $numSent = $this->mailer->send($message, $errors);
         printf("Sent %d message\n", $numSent);
