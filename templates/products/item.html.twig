@@ -35,7 +35,7 @@
                             {% set difference = date(price.date|date('Y-m-d')).diff(date('now'|date('Y-m-d'))) %}
                             <tr>
                                 <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
-                                {% if difference.days >= 2 %}
+                                {% if difference.days >= 1 %}
                                     <td>out of stock!</td>
                                 {% else %}
                                     <td>€{{ price.price / 100 }}</td>
