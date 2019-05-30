@@ -115,13 +115,12 @@ class WebScraperService
         $dateTodayFormat = $dateToday->format('Y-m-d');
 
         if (!empty($variation->getPrices()->first())) {
-            $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
-
             $dateDifference = $dateToday->diff($variation->getPrices()->last()->getDate());
-            if (substr($dateDifference->format('%r%a'), 1) >= 2) {
+            if ((int)$dateDifference->format('%d.%h') >= 1.1) {
                 $this->sendMail($variation, '', 'back_in_stock');
             }
 
+            $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
             if ($dateTodayFormat === $lastVariationPriceDateFormat) {
                 if ((int)($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
                     return;
