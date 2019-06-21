@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
+use App\Entity\Variation;
 use App\Form\ScrapableProductType;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
@@ -41,13 +42,19 @@ class ProductsController extends AbstractController
      * @param Product $product
      * @param VariationRepository $variationRepository
      * @param GoogleChartService $googleChartService
-     * @param string $variation
+     * @param Variation|null $variation
      * @return Response
      */
     public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation): Response
     {
-        if (!empty($variation)) {
+        if ($variation !== null) {
             $variation = $variationRepository->findOneBy(['product' => $product->getId(), 'slug' => $variation]);
+            if (!$variation instanceof Variation) {
+                return $this->render('products/item.html.twig',
+                    ['product' => $product,]
+                );
+            }
+
             $lineChart = $googleChartService->createLineChart($variation);
 
             return $this->render('variation/item.html.twig',

@@ -114,7 +114,6 @@ class WebScraperService
     public function addPrice(Variation $variation, $variationPrice): void
     {
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
-        $dateTodayFormat = $dateToday->format('Y-m-d');
 
         if (!empty($variation->getPrices()->first())) {
             $dateDifference = $dateToday->diff($variation->getPrices()->last()->getDate());
@@ -123,7 +122,7 @@ class WebScraperService
             }
 
             $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
-            if ($dateTodayFormat === $lastVariationPriceDateFormat) {
+            if (date('Y-m-d') === $lastVariationPriceDateFormat) {
                 if ((int)($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
                     return;
                 }
@@ -164,6 +163,7 @@ class WebScraperService
             );
 
         $numSent = $this->mailer->send($message, $errors);
+
         printf("Sent %d message\n", $numSent);
     }
 }
