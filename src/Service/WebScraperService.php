@@ -82,9 +82,11 @@ class WebScraperService
             return;
         }
 
-        $existingVariations = $this->variationRepository->findBy(['product' => $product->getId()]);
-
         foreach ($variations as $variation) {
+            if ($variation['availability'] !== 'https://schema.org/InStock') {
+                continue;
+            }
+
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
                 $this->addPrice($variationObj, $variation['price']);
                 continue;
