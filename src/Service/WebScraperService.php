@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\Price;
@@ -83,12 +84,18 @@ class WebScraperService
         }
 
         foreach ($variations as $variation) {
-            if ($variation['availability'] !== 'https://schema.org/InStock') {
+            if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
+                $variationObj->setInStock($variation['availability'] !== 'https://schema.org/InStock' ? 0 : 1);
+
+                $this->entityManager->persist($variationObj);
+                $this->entityManager->flush();
+
+                $this->addPrice($variationObj, $variation['price']);
                 continue;
             }
 
-            if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
-                $this->addPrice($variationObj, $variation['price']);
+            /** new variation but not in stock yes - price could be strange so dont add it yet. (chart and history would look strange **/
+            if ($variation['availability'] !== 'https://schema.org/InStock') {
                 continue;
             }
 
@@ -98,6 +105,7 @@ class WebScraperService
             $variationObj->setName(str_replace(['New -', 'New –', $product->getName() . ' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
             $variationObj->setUrl($variation['url']);
             $variationObj->setSlug(str_replace([' '], '', strtolower($variationObj->getName())));
+            $variationObj->setInStock(1);
             $variationObj->setProduct($product);
 
             $this->entityManager->persist($variationObj);

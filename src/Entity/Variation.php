@@ -44,6 +44,11 @@ class Variation
      */
     private $prices;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $inStock;
+
     public function __construct()
     {
         $this->prices = new ArrayCollection();
@@ -129,6 +134,18 @@ class Variation
                 $price->setVariation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getInStock(): ?int
+    {
+        return $this->inStock;
+    }
+
+    public function setInStock(int $inStock): self
+    {
+        $this->inStock = $inStock;
 
         return $this;
     }
