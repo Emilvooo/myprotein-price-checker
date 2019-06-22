@@ -85,6 +85,10 @@ class WebScraperService
 
         foreach ($variations as $variation) {
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
+                if ($variationObj->getInStock() === 0 && $variation['availability'] === 'https://schema.org/InStock') {
+                    $this->sendMail($variationObj, '', 'back_in_stock');
+                }
+
                 $variationObj->setInStock($variation['availability'] !== 'https://schema.org/InStock' ? 0 : 1);
 
                 $this->entityManager->persist($variationObj);
@@ -124,11 +128,6 @@ class WebScraperService
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
 
         if (!empty($variation->getPrices()->first())) {
-            $dateDifference = $dateToday->diff($variation->getPrices()->last()->getDate());
-            if ((int)$dateDifference->format('%d.%h') >= 1.1) {
-                $this->sendMail($variation, '', 'back_in_stock');
-            }
-
             $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
             if (date('Y-m-d') === $lastVariationPriceDateFormat) {
                 if ((int)($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
