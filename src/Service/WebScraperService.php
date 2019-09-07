@@ -98,7 +98,7 @@ class WebScraperService
                 continue;
             }
 
-            /** new variation but not in stock yes - price could be strange so dont add it yet. (chart and history would look strange **/
+            /** new variation but not in stock yet - price could be strange so dont add it yet. (chart and history would look strange **/
             if ($variation['availability'] !== 'https://schema.org/InStock') {
                 continue;
             }

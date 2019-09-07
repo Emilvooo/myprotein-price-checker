@@ -40,7 +40,7 @@ class Variation
     private $product;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation")
+     * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation", fetch="EAGER")
      */
     private $prices;
 
