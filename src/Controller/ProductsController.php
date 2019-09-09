@@ -8,6 +8,7 @@ use App\Entity\Variation;
 use App\Form\ScrapableProductType;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
+use App\Scraper\ScraperService;
 use App\Service\FormHandlerService;
 use App\Service\GoogleChartService;
 use App\Service\ProductsTransformer;
@@ -24,17 +25,22 @@ class ProductsController extends AbstractController
      * @param ProductsTransformer $productsTransformer
      * @return Response
      */
-    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
+    public function index(ScraperService $scraperService, ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
     {
-        $products = $productRepository->findAll();
-        $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
-        $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
+        $scraperService->startScraping();
 
-        return $this->render('products/index.html.twig',
-            [
-                'products' => $productsWithUpdateDate,
-            ]
-        );
+        die();
+
+
+//        $products = $productRepository->findAll();
+//        $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
+//        $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
+//
+//        return $this->render('products/index.html.twig',
+//            [
+//                'products' => $productsWithUpdateDate,
+//            ]
+//        );
     }
 
     /**
