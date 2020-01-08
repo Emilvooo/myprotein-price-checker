@@ -40,6 +40,8 @@ class WebScraperService
     public function processData(): void
     {
         $scrapableProducts = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
+        shuffle($scrapableProducts);
+
         foreach ($scrapableProducts as $product) {
             $crawler = $this->client->request('GET', $product->getUrl());
 
