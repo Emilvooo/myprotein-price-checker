@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\DTO\ProductWithUpdateDate;
@@ -26,7 +28,7 @@ class ProductsTransformer
             $this->productsWithUpdateDate[] = $productWithUpdateDate;
         }
 
-        usort($this->productsWithUpdateDate, function($a, $b) {
+        usort($this->productsWithUpdateDate, function ($a, $b) {
             return $b->getUpdateDate() <=> $a->getUpdateDate();
         });
 
@@ -43,7 +45,7 @@ class ProductsTransformer
             $updateDates[] = $productWithUpdateDate->getUpdateDate()->format('Y-m-d H');
         }
 
-        $allDatesAreTheSame = (count(array_unique($updateDates)) === 1);
+        $allDatesAreTheSame = (1 === count(array_unique($updateDates)));
         if (!$allDatesAreTheSame) {
             foreach ($updateDates as $updateDate) {
                 if ($updateDate > $mostRecent) {

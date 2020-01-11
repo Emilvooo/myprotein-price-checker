@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,24 +20,16 @@ class Product
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    /** @ORM\Column(type="string", length=255) */
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product")
-     */
+    /** @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product") */
     private $variations;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    /** @ORM\Column(type="string", length=255) */
     private $slug;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    /** @ORM\Column(type="text") */
     private $description;
 
     public function __construct()

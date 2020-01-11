@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Entity;
 
 use App\Entity\Product;
@@ -12,16 +14,10 @@ class ProductService extends BaseEntityService
     {
         parent::create($properties);
 
-        $this->getEntity()->setSlug($this->generateSlug($this->getEntity()->getName()));
-
-        dump($this);
-        die();
+        /** @var Product $product */
+        $product = $this->getEntity();
+        $product->setSlug($this->slugGenerator->generateSlug($product->getName()));
 
         return $this;
-    }
-
-    private function generateSlug($name)
-    {
-        return str_replace(' ', '', strtolower($name));
     }
 }

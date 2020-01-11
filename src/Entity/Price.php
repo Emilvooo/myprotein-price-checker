@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -16,19 +18,13 @@ class Price
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    /** @ORM\Column(type="integer") */
     private $price;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    /** @ORM\Column(type="datetime") */
     private $date;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Variation", inversedBy="prices")
-     */
+    /** @ORM\ManyToOne(targetEntity="App\Entity\Variation", inversedBy="prices") */
     private $variation;
 
     public function getId(): ?int

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Entity;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use App\Service\SlugGeneratorService;
+use Doctrine\ORM\EntityManagerInterface;
 
 abstract class BaseEntityService
 {
@@ -10,31 +13,34 @@ abstract class BaseEntityService
     protected $om;
     protected $errors = [];
     protected $entity;
+    protected $slugGenerator;
 
-    public function __construct(ObjectManager $om)
+    public function __construct(EntityManagerInterface $om, SlugGeneratorService $slugGenerator)
     {
         $this->om = $om;
+        $this->slugGenerator = $slugGenerator;
 
         if (empty($this->entityClass)) {
-            throw new \Exception("Missing entity class.");
+            throw new \Exception('Missing entity class.');
         }
     }
 
-    public function create($properties = []): BaseEntityService
+    public function create($properties = []): self
     {
         $this->setEntity(new $this->entityClass());
+
         return $this->setProperties($properties);
     }
 
-    public function setProperties($properties = [])
+    public function setProperties($properties = []): self
     {
         if ($this->getEntity()) {
             foreach ($properties as $property => $value) {
-                if (strtolower($property) === 'id') {
+                if ('id' === strtolower($property)) {
                     continue;
                 }
 
-                $setterMethod = 'set' . $property;
+                $setterMethod = 'set'.$property;
                 if (method_exists($this->getEntity(), $setterMethod)) {
                     $this->getEntity()->$setterMethod($value);
                 }
@@ -52,13 +58,13 @@ abstract class BaseEntityService
     public function setEntity($entity): void
     {
         if (!is_a($entity, $this->entityClass)) {
-            throw new \Exception('Setting invalid entity.  Expecting entity to be of type: ' . $this->entityClass);
+            throw new \Exception('Setting invalid entity.  Expecting entity to be of type: '.$this->entityClass);
         }
 
         $this->entity = $entity;
     }
 
-    public function save(): bool
+    public function save()
     {
         if (!empty($this->entity)) {
             // Save entity
@@ -68,12 +74,10 @@ abstract class BaseEntityService
             // Reset the errors array after saving is successful
             $this->errors = [];
 
-            return true;
+            return $this->entity;
         }
 
         $this->errors[] = 'The entity being saved was empty.';
-
-        return false;
     }
 
     public function getErrors(): array
