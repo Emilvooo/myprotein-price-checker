@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,19 +20,13 @@ class Variation
      */
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    /** @ORM\Column(type="string", length=255) */
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    /** @ORM\Column(type="string", length=255) */
     private $url;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    /** @ORM\Column(type="string", length=255) */
     private $slug;
 
     /**
@@ -39,10 +35,11 @@ class Variation
      */
     private $product;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation")
-     */
+    /** @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation", fetch="LAZY") */
     private $prices;
+
+    /** @ORM\Column(type="integer") */
+    private $inStock;
 
     public function __construct()
     {
@@ -129,6 +126,18 @@ class Variation
                 $price->setVariation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getInStock(): ?int
+    {
+        return $this->inStock;
+    }
+
+    public function setInStock(int $inStock): self
+    {
+        $this->inStock = $inStock;
 
         return $this;
     }

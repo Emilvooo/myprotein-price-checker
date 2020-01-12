@@ -21,6 +21,17 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-sm bg-white border-0" data-toggle="table" data-pagination="true" data-search="true">
+                        <caption>
+                            <svg width="25" height="25">
+                                <rect width="25" height="25" style="fill:#28a745 "></rect>
+                            </svg>
+                            = IN STOCK
+                            <br>
+                            <svg width="25" height="25">
+                                <rect width="25" height="25" style="fill:#dc3545"></rect>
+                            </svg>
+                            = OUT OF STOCK
+                        </caption>
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col" data-sortable="true" data-field="name">Name</th>
@@ -30,9 +41,9 @@
                         </tr>
                         </thead>
                         <tbody class="table-borderless">
-                        {% for variation in product.variations %}
+                        {% for variation in variations %}
                             {% set price = variation.prices|last %}
-                            <tr>
+                            <tr class="{{ variation.inStock == 1 ? 'bg-success' : 'bg-danger' }} text-w">
                                 <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
                                 <td>€{{ price.price / 100 }}</td>
                                 <td>{{ price.date|date('Y-m-d H:i:s') }}</td>

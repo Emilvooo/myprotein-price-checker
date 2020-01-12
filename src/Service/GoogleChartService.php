@@ -1,13 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Variation;
+use CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\LineChart;
 
 class GoogleChartService
 {
-    public function createLineChart(Variation $variation)
+    public function createLineChart(Variation $variation): LineChart
     {
-        $lineChart = new \CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\LineChart();
+        $lineChart = new LineChart();
 
         $priceHistory[] = ['Date', 'Price'];
         foreach ($variation->getPrices() as $key => $price) {

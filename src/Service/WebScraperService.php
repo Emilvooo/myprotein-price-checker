@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Price;
@@ -7,9 +10,9 @@ use App\Entity\ScrapeableProduct;
 use App\Entity\Variation;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
-use Goutte\Client;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Goutte\Client;
+use Twig\Environment;
 
 class WebScraperService
 {
@@ -24,10 +27,9 @@ class WebScraperService
         EntityManagerInterface $entityManager,
         ProductRepository $productRepository,
         VariationRepository $variationRepository,
-        EngineInterface $templating,
+        Environment $templating,
         \Swift_Mailer $mailer
-    )
-    {
+    ) {
         $this->client = new Client();
         $this->entityManager = $entityManager;
         $this->productRepository = $productRepository;
@@ -36,9 +38,11 @@ class WebScraperService
         $this->mailer = $mailer;
     }
 
-    public function processData()
+    public function processData(): void
     {
         $scrapableProducts = $this->entityManager->getRepository(ScrapeableProduct::class)->findAll();
+        shuffle($scrapableProducts);
+
         foreach ($scrapableProducts as $product) {
             $crawler = $this->client->request('GET', $product->getUrl());
 
@@ -47,13 +51,13 @@ class WebScraperService
 
             $product = $this->addProduct($product);
             printf("Checking %s...\n", $product->getName());
-            if (!empty($product)) {
+            if (null !== $product) {
                 $this->addVariations($variations, $product);
             }
         }
     }
 
-    public function addProduct($product)
+    public function addProduct($product): ?Product
     {
         if (empty($product)) {
             return null;
@@ -76,24 +80,40 @@ class WebScraperService
         return $productObj;
     }
 
-    public function addVariations($variations, Product $product)
+    public function addVariations($variations, Product $product): void
     {
-        if (empty($variations) || is_null($product)) {
-            return null;
+        if (empty($variations) || null === $product) {
+            return;
         }
 
         foreach ($variations as $variation) {
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
+                if (0 === $variationObj->getInStock() && 'https://schema.org/InStock' === $variation['availability']) {
+                    //$this->sendMail($variationObj, '', 'back_in_stock');
+                }
+
+                $variationObj->setInStock('https://schema.org/InStock' !== $variation['availability'] ? 0 : 1);
+
+                $this->entityManager->persist($variationObj);
+                $this->entityManager->flush();
+
                 $this->addPrice($variationObj, $variation['price']);
+
                 continue;
             }
 
-            $crawler = $this->client->request('GET', 'https://nl.myprotein.com/' . $variation['sku'] . '.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
+            /** new variation but not in stock yet - price could be strange so dont add it yet. (chart and history would look strange **/
+            if ('https://schema.org/InStock' !== $variation['availability']) {
+                continue;
+            }
+
+            $crawler = $this->client->request('GET', 'https://nl.myprotein.com/'.$variation['sku'].'.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
 
             $variationObj = new Variation();
-            $variationObj->setName(str_replace(['New -', 'New –', $product->getName() . ' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
+            $variationObj->setName(str_replace(['New -', 'New –', $product->getName().' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
             $variationObj->setUrl($variation['url']);
             $variationObj->setSlug(str_replace([' '], '', strtolower($variationObj->getName())));
+            $variationObj->setInStock(1);
             $variationObj->setProduct($product);
 
             $this->entityManager->persist($variationObj);
@@ -107,16 +127,16 @@ class WebScraperService
         }
     }
 
-    public function addPrice(Variation $variation, $variationPrice)
+    public function addPrice(Variation $variation, $variationPrice): void
     {
         $dateToday = new \DateTime('now', new \DateTimeZone('Europe/Amsterdam'));
+
         if (!empty($variation->getPrices()->first())) {
-            if ($dateToday->format('Y-m-d') == $variation->getPrices()->last()->getDate()->format('Y-m-d')) {
-                if (intval($variationPrice * 100) == $variation->getPrices()->last()->getPrice()) {
+            $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
+            if (date('Y-m-d') === $lastVariationPriceDateFormat) {
+                if ((int) ($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
                     return;
                 }
-
-                $this->sendMail($variation, $variationPrice);
             }
         }
 
@@ -131,24 +151,29 @@ class WebScraperService
         printf("Added a price to %s...\n", $variation->getName());
     }
 
-    public function sendMail(Variation $variation, $variationPrice)
+    public function sendMail(Variation $variation, $variationPrice, $template): void
     {
-        $message = (new \Swift_Message('Price of product ' . $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' changed!'))
+        $subject = $variation->getProduct()->getName().' - '.$variation->getName().' is back in stock!';
+        $mailVars = ['variation' => $variation];
+        if ('price_changed' === $template) {
+            $subject = 'Price of product '.$variation->getProduct()->getName().' - '.$variation->getName().' changed!';
+            $mailVars['newPrice'] = $variationPrice;
+        }
+
+        $message = (new \Swift_Message($subject))
             ->setFrom('info@myprotein-price-checker.com')
             ->setTo('emilveldhuizen@gmail.com')
             ->setBody(
                 $this->templating->render(
-                    'emails/price_changed.html.twig',
-                    [
-                        'variation' => $variation,
-                        'newPrice' => $variationPrice
-                    ]
+                    'emails/'.$template.'.html.twig',
+                    $mailVars
                 ),
                 'text/html'
             )
         ;
 
         $numSent = $this->mailer->send($message, $errors);
+
         printf("Sent %d message\n", $numSent);
     }
 }

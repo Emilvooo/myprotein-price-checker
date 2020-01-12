@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,7 +16,7 @@ class FormHandlerService
         $this->entityManager = $entityManager;
     }
 
-    public function formHandler(FormInterface $form)
+    public function formHandler(FormInterface $form): bool
     {
         if (!strpos($form->getData()->getUrl(), 'myprotein.com')) {
             return false;

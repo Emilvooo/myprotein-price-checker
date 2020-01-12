@@ -1,35 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\ScrapeableProduct;
+use App\Entity\Variation;
 use App\Form\ScrapableProductType;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
 use App\Service\FormHandlerService;
 use App\Service\GoogleChartService;
 use App\Service\ProductsTransformer;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductsController extends AbstractController
 {
     /**
      * @Route("/", name="products_index")
+     *
      * @param ProductRepository $productRepository
      * @param ProductsTransformer $productsTransformer
+     *
      * @return Response
      */
-    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer)
+    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
     {
         $products = $productRepository->findAll();
+
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
         $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
 
-        return $this->render('products/index.html.twig',
+        return $this->render(
+            'products/index.html.twig',
             [
                 'products' => $productsWithUpdateDate,
             ]
@@ -38,37 +46,55 @@ class ProductsController extends AbstractController
 
     /**
      * @Route("/variations/{slug}/{variation?}", name="products_variation_index")
+     *
      * @param Product $product
      * @param VariationRepository $variationRepository
      * @param GoogleChartService $googleChartService
-     * @param string $variation
+     * @param Variation|null $variation
+     *
      * @return Response
      */
-    public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation)
+    public function item(Product $product, VariationRepository $variationRepository, GoogleChartService $googleChartService, $variation): Response
     {
-        if (!empty($variation)) {
+        if (null !== $variation) {
             $variation = $variationRepository->findOneBy(['product' => $product->getId(), 'slug' => $variation]);
+            if (!$variation instanceof Variation) {
+                return $this->render(
+                    'products/item.html.twig',
+                    ['product' => $product]
+                );
+            }
+
             $lineChart = $googleChartService->createLineChart($variation);
 
-            return $this->render('variation/item.html.twig',
+            return $this->render(
+                'variation/item.html.twig',
                 [
                     'variation' => $variation,
                     'product' => $variation->getProduct(),
-                    'linechart' => $lineChart
+                    'linechart' => $lineChart,
                 ]
             );
-        };
+        }
 
-        return $this->render('products/item.html.twig',
-            ['product' => $product,]
+        $variations = $variationRepository->getVariations($product);
+
+        return $this->render(
+            'products/item.html.twig',
+            [
+                'product' => $product,
+                'variations' => $variations,
+            ]
         );
     }
 
     /**
      * @Route("/products/add", name="products_add")
+     *
      * @param Request $request
      * @param FormHandlerService $formHandlerService
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     *
+     * @return RedirectResponse|Response
      */
     public function addProduct(Request $request, FormHandlerService $formHandlerService)
     {
@@ -94,7 +120,7 @@ class ProductsController extends AbstractController
         }
 
         return $this->render('products/add.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 }
