@@ -52,6 +52,7 @@ class ScraperService
 
     public function startScraping(): void
     {
+        ini_set('memory_limit', -1);
         $scrapeableProducts = $this->scrapeableProductRepository->findAll();
         foreach ($scrapeableProducts as $scrapeableProduct) {
             $crawler = $this->client->request('GET', $scrapeableProduct->getUrl());
