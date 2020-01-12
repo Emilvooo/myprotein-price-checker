@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Price;
@@ -8,9 +10,9 @@ use App\Entity\ScrapeableProduct;
 use App\Entity\Variation;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
-use Goutte\Client;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Goutte\Client;
+use Twig\Environment;
 
 class WebScraperService
 {
@@ -25,10 +27,9 @@ class WebScraperService
         EntityManagerInterface $entityManager,
         ProductRepository $productRepository,
         VariationRepository $variationRepository,
-        EngineInterface $templating,
+        Environment $templating,
         \Swift_Mailer $mailer
-    )
-    {
+    ) {
         $this->client = new Client();
         $this->entityManager = $entityManager;
         $this->productRepository = $productRepository;
@@ -50,7 +51,7 @@ class WebScraperService
 
             $product = $this->addProduct($product);
             printf("Checking %s...\n", $product->getName());
-            if ($product !== null) {
+            if (null !== $product) {
                 $this->addVariations($variations, $product);
             }
         }
@@ -81,34 +82,35 @@ class WebScraperService
 
     public function addVariations($variations, Product $product): void
     {
-        if (empty($variations) || $product === null) {
+        if (empty($variations) || null === $product) {
             return;
         }
 
         foreach ($variations as $variation) {
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
-                if ($variationObj->getInStock() === 0 && $variation['availability'] === 'https://schema.org/InStock') {
-                    $this->sendMail($variationObj, '', 'back_in_stock');
+                if (0 === $variationObj->getInStock() && 'https://schema.org/InStock' === $variation['availability']) {
+                    //$this->sendMail($variationObj, '', 'back_in_stock');
                 }
 
-                $variationObj->setInStock($variation['availability'] !== 'https://schema.org/InStock' ? 0 : 1);
+                $variationObj->setInStock('https://schema.org/InStock' !== $variation['availability'] ? 0 : 1);
 
                 $this->entityManager->persist($variationObj);
                 $this->entityManager->flush();
 
                 $this->addPrice($variationObj, $variation['price']);
+
                 continue;
             }
 
             /** new variation but not in stock yet - price could be strange so dont add it yet. (chart and history would look strange **/
-            if ($variation['availability'] !== 'https://schema.org/InStock') {
+            if ('https://schema.org/InStock' !== $variation['availability']) {
                 continue;
             }
 
-            $crawler = $this->client->request('GET', 'https://nl.myprotein.com/' . $variation['sku'] . '.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
+            $crawler = $this->client->request('GET', 'https://nl.myprotein.com/'.$variation['sku'].'.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
 
             $variationObj = new Variation();
-            $variationObj->setName(str_replace(['New -', 'New –', $product->getName() . ' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
+            $variationObj->setName(str_replace(['New -', 'New –', $product->getName().' - '], '', $crawler->filter('.athenaProductImageCarousel_thumbnail')->attr('alt')));
             $variationObj->setUrl($variation['url']);
             $variationObj->setSlug(str_replace([' '], '', strtolower($variationObj->getName())));
             $variationObj->setInStock(1);
@@ -132,11 +134,9 @@ class WebScraperService
         if (!empty($variation->getPrices()->first())) {
             $lastVariationPriceDateFormat = $variation->getPrices()->last()->getDate()->format('Y-m-d');
             if (date('Y-m-d') === $lastVariationPriceDateFormat) {
-                if ((int)($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
+                if ((int) ($variationPrice * 100) === $variation->getPrices()->last()->getPrice()) {
                     return;
                 }
-
-                $this->sendMail($variation, $variationPrice, 'price_changed');
             }
         }
 
@@ -153,10 +153,10 @@ class WebScraperService
 
     public function sendMail(Variation $variation, $variationPrice, $template): void
     {
-        $subject = $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' is back in stock!';
+        $subject = $variation->getProduct()->getName().' - '.$variation->getName().' is back in stock!';
         $mailVars = ['variation' => $variation];
-        if ($template === 'price_changed') {
-            $subject = 'Price of product ' . $variation->getProduct()->getName() . ' - ' . $variation->getName() . ' changed!';
+        if ('price_changed' === $template) {
+            $subject = 'Price of product '.$variation->getProduct()->getName().' - '.$variation->getName().' changed!';
             $mailVars['newPrice'] = $variationPrice;
         }
 
@@ -165,11 +165,12 @@ class WebScraperService
             ->setTo('emilveldhuizen@gmail.com')
             ->setBody(
                 $this->templating->render(
-                    'emails/' . $template . '.html.twig',
+                    'emails/'.$template.'.html.twig',
                     $mailVars
                 ),
                 'text/html'
-            );
+            )
+        ;
 
         $numSent = $this->mailer->send($message, $errors);
 
