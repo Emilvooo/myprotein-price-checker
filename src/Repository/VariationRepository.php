@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Product;
 use App\Entity\Variation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -19,6 +20,20 @@ class VariationRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Variation::class);
+    }
+
+    public function getVariations(Product $product)
+    {
+        return $this->createQueryBuilder('v')
+            ->select('v, pr')
+            ->leftJoin('v.prices', 'pr')
+            ->andWhere('v.product = :product')
+            ->setParameter('product', $product)
+            ->andWhere('pr.date > :date')
+            ->setParameter('date', new \DateTime('-1 month'))
+            ->getQuery()
+            ->getResult()
+            ;
     }
 
     // /**

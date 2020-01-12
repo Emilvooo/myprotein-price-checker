@@ -7,6 +7,7 @@ namespace App\Service\Entity;
 use App\Entity\Product;
 use App\Entity\Variation;
 use Goutte\Client;
+use function Symfony\Component\String\u;
 
 class VariationService extends BaseEntityService
 {
@@ -23,7 +24,7 @@ class VariationService extends BaseEntityService
 
         $variation->setName($this->getVariationName($properties['sku']));
         $variation->setInStock($this->isInStock($properties['availability']));
-        $variation->setSlug($this->slugGenerator->generateSlug($this->getVariationName($properties['sku'])));
+        $variation->setSlug($this->slugger->slug($this->getVariationName($properties['sku']))->lower()->toString());
         $variation->setProduct($this->product);
 
         return $this;
@@ -38,7 +39,7 @@ class VariationService extends BaseEntityService
 
     private function isInStock($availability): int
     {
-        if (strpos($availability, 'InStock')) {
+        if (u($availability)->match('/(?:InStock)/')) {
             return 1;
         }
 

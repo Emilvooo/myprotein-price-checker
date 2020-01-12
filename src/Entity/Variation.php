@@ -35,7 +35,7 @@ class Variation
      */
     private $product;
 
-    /** @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation", fetch="EAGER") */
+    /** @ORM\OneToMany(targetEntity="App\Entity\Price", mappedBy="variation", fetch="LAZY") */
     private $prices;
 
     /** @ORM\Column(type="integer") */

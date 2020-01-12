@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Entity;
 
-use App\Service\SlugGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 abstract class BaseEntityService
 {
@@ -13,12 +13,13 @@ abstract class BaseEntityService
     protected $om;
     protected $errors = [];
     protected $entity;
-    protected $slugGenerator;
+    /** @var SluggerInterface */
+    protected $slugger;
 
-    public function __construct(EntityManagerInterface $om, SlugGeneratorService $slugGenerator)
+    public function __construct(EntityManagerInterface $om, SluggerInterface $slugger)
     {
         $this->om = $om;
-        $this->slugGenerator = $slugGenerator;
+        $this->slugger = $slugger;
 
         if (empty($this->entityClass)) {
             throw new \Exception('Missing entity class.');

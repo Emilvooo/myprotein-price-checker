@@ -16,7 +16,7 @@ class ProductService extends BaseEntityService
 
         /** @var Product $product */
         $product = $this->getEntity();
-        $product->setSlug($this->slugGenerator->generateSlug($product->getName()));
+        $product->setSlug($this->slugger->slug($product->getName())->lower()->toString());
 
         return $this;
     }

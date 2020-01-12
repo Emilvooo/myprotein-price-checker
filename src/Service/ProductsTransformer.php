@@ -17,6 +17,7 @@ class ProductsTransformer
         foreach ($products as $product) {
             $productWithUpdateDate = new ProductWithUpdateDate();
             $productWithUpdateDate->setProduct($product);
+
             foreach ($lastUpdatedVariations as $lastUpdatedVariation) {
                 if ($product->getName() !== $lastUpdatedVariation['name']) {
                     continue;

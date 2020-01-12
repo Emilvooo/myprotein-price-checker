@@ -10,11 +10,9 @@ use App\Entity\Variation;
 use App\Form\ScrapableProductType;
 use App\Repository\ProductRepository;
 use App\Repository\VariationRepository;
-use App\Scraper\ScraperService;
 use App\Service\FormHandlerService;
 use App\Service\GoogleChartService;
 use App\Service\ProductsTransformer;
-use App\Service\WebScraperService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +29,7 @@ class ProductsController extends AbstractController
      *
      * @return Response
      */
-    public function index(ScraperService $scraperService, WebScraperService $webScraperService, ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
+    public function index(ProductRepository $productRepository, ProductsTransformer $productsTransformer): Response
     {
         $products = $productRepository->findAll();
 
@@ -79,9 +77,14 @@ class ProductsController extends AbstractController
             );
         }
 
+        $variations = $variationRepository->getVariations($product);
+
         return $this->render(
             'products/item.html.twig',
-            ['product' => $product]
+            [
+                'product' => $product,
+                'variations' => $variations,
+            ]
         );
     }
 

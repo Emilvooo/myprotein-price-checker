@@ -14,6 +14,7 @@ use App\Service\Entity\PriceService;
 use App\Service\Entity\ProductService;
 use App\Service\Entity\VariationService;
 use Goutte\Client;
+use function Symfony\Component\String\u;
 
 class ScraperService
 {
@@ -98,10 +99,8 @@ class ScraperService
                 continue;
             }
 
-            if (!strpos($variation['availability'], 'InStock')) {
-                /**
-                 * New variation, but not in stock YET so dont create a new variation.
-                 */
+            if (u($variation['availability'])->match('/(?:OutOfStock)/')) {
+                /** New variation, but not in stock YET so don't create a new variation. */
                 continue;
             }
 
