@@ -30,7 +30,7 @@ class VariationRepository extends ServiceEntityRepository
             ->andWhere('v.product = :product')
             ->setParameter('product', $product)
             ->andWhere('pr.date > :date')
-            ->setParameter('date', new \DateTime('-1 month'))
+            ->setParameter('date', new \DateTime('-2 day'))
             ->getQuery()
             ->getResult()
             ;
