@@ -36,12 +36,18 @@ class ProductsController extends AbstractController
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
         $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
 
-        return $this->render(
+
+        $response =  $this->render(
             'products/index.html.twig',
             [
                 'products' => $productsWithUpdateDate,
             ]
         );
+
+        $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+
+        return $response;
     }
 
     /**
