@@ -36,8 +36,7 @@ class ProductsController extends AbstractController
         $lastUpdatedVariations = $productRepository->getLastUpdatedVariations();
         $productsWithUpdateDate = $productsTransformer->transformProductsIntoDto($products, $lastUpdatedVariations);
 
-
-        $response =  $this->render(
+        $response = $this->render(
             'products/index.html.twig',
             [
                 'products' => $productsWithUpdateDate,
