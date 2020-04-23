@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-10">
+            <h3>
+                <a href="{{ variation.url }}" target="_blank" class="text-dark text-uppercase font-weight-bold text-decoration-none">
+                    {{ product.name }}
+                    <small class="text-muted">{{ variation.name }}</small>
+                    <a href="{{ variation.url }}" target="_blank" class="btn btn-sm btn-dark"><i class="fas fa-link"></i></a>
+                </a>
+            </h3>
+        </div>
+        <div class="col-2">
+            <a class="btn btn-dark float-right" href="{{ path('products_item', {slug: product.slug}) }}" role="button"><i class="fas fa-backward"></i></a>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="mb-3 font-weight-bold">
+                                Price statistics
+                            </h4>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted float-right">
+                                {% set recentPrice = variation.prices|last %}
+                                <span class="badge badge-pill badge-dark">€{{ (recentPrice.price / 100)|round(2) }}</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col pt-3 bg-white">
+                        <div id="div_chart" class="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        {{ gc_draw(lineChart, 'div_chart') }}
+    </script>
+{% endblock %}

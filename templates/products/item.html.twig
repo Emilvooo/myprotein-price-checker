@@ -8,17 +8,18 @@
 {% block body %}
 <div class="row">
     <div class="col-10">
-        <h3><a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark">{{ product.name }}</a></h3>
+        <h3 class="text-dark text-uppercase font-weight-bold">{{ product.name }}</h3>
+        <p>{{ product.description|raw }}</p>
     </div>
     <div class="col-2">
         <a class="btn btn-dark float-right" href="{{ path('products_index') }}" role="button"><i class="fas fa-backward"></i></a>
     </div>
 </div>
-<div class="row mt-3">
+<div class="row mt-3 mb-3">
     <div class="col">
-        <h4 class="mb-3">Variations</h4>
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
+                <h4 class="mb-3 font-weight-bold">Variations</h4>
                 <div class="table-responsive">
                     <table class="table table-sm bg-white border-0" data-toggle="table" data-pagination="true" data-search="true">
                         <caption>
@@ -42,12 +43,12 @@
                         </thead>
                         <tbody class="table-borderless">
                         {% for variation in variations %}
-                            {% set price = variation.prices|last %}
+                            {% set price = variation.prices|first %}
                             <tr class="{{ variation.inStock == 1 ? 'bg-success' : 'bg-danger' }} text-w">
-                                <td><a href="{{ variation.url }}" target="_blank" class="text-dark">{{ variation.name }}</a></td>
+                                <td><a href="{{ variation.url }}" target="_blank" class="text-dark text-decoration-none">{{ variation.name }}</a></td>
                                 <td>€{{ price.price / 100 }}</td>
                                 <td>{{ price.date|date('Y-m-d H:i:s') }}</td>
-                                <td class="text-center"><a href="{{ path('products_variation_index', {slug: product.slug, variation: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
+                                <td class="text-center"><a href="{{ path('variation_item', {slug: product.slug, variationSlug: variation.slug}) }}" class="btn btn-dark"><i class="fas fa-history"></i></a></td>
                             </tr>
                         {% endfor %}
                         </tbody>

@@ -1,10 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
-{% endblock %}
-
 {% block body %}
     {% if app.session is not null and app.session.started %}
         {% for label, messages in app.session.flashbag.all %}
@@ -17,36 +12,27 @@
     {% endif %}
     <div class="row">
         <div class="col-10">
-            <h3><a href="/" class="text-dark">Products</a></h3>
+            <h3 class="text-dark text-uppercase font-weight-bold">Products</h3>
         </div>
         <div class="col-2">
-            <a class="btn btn-dark float-right" href="{{ path('products_add') }}" role="button"><i class="fas fa-plus"></i></a>
+            <a class="btn btn-dark float-right" href="{{ path('products_new') }}" role="button"><i class="fas fa-plus"></i></a>
         </div>
     </div>
-    <div class="row mt-3">
-        {% for product in products %}
-            {% set updateDate = product.updateDate %}
-            {% set product = product.product %}
-            <div class="col-lg-4 col-md-6 py-2 d-flex align-items-stretch">
-                <div class="card bg-white shadow-sm">
-                    <div class="card-body">
-                        <a href="{{ path('products_variation_index', {slug: product.slug}) }}" class="text-dark">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                        </a>
-                        <p class="card-text">{{ product.description|slice(0, 200)|raw }}</p>
+    <div class="row mt-3 mb-3">
+        <div class="container">
+            <div class="row">
+            {% for product in products %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body d-flex flex-column">
+                            <a href="{{ path('products_item', {slug: product.slug}) }}" class="text-dark text-decoration-none stretched-link">
+                                <h5 class="font-weight-bold center">{{ product.name }}</h5>
+                            </a>
+                            <p class="card-text mt-auto"><small class="text-muted">Last updated: <strong>{{ product.updated|date('M-d G:i') }}</strong></small></p>
+                        </div>
                     </div>
-                    <div class="card-footer border-0 bg-white">
-                        <small class="text-muted">
-{#                            <div class="float-right">#}
-{#                                <span class="badge badge-dark">amount: {{ product.variations|length }}</span>#}
-{#                            </div>#}
-                            <div class="float-left">
-                                <span class="badge badge-dark">last updated: {{ updateDate|date('M-d G:i') }}</span>
-                            </div>
-                        </small>
-                    </div>
-                </div>
             </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

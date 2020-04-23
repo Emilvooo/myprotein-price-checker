@@ -1,3 +1,19 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+
+products_index:
+  path: /
+  controller: App\Controller\ProductsController::index
+
+products_item:
+  path: /{slug}
+  controller: App\Controller\ProductsController::item
+
+products_new:
+  path: /product/new
+  controller: App\Controller\ProductsController::newProduct
+
+variation_item:
+  path: /{slug}/{variationSlug}
+  controller: App\Controller\VariationsController::item

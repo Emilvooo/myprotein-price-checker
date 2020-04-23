@@ -23,7 +23,7 @@ class Product
     /** @ORM\Column(type="string", length=255) */
     private $name;
 
-    /** @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product") */
+    /** @ORM\OneToMany(targetEntity="App\Entity\Variation", mappedBy="product", fetch="EXTRA_LAZY") */
     private $variations;
 
     /** @ORM\Column(type="string", length=255) */
@@ -31,6 +31,9 @@ class Product
 
     /** @ORM\Column(type="text") */
     private $description;
+
+    /** @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"}) */
+    private $updated;
 
     public function __construct()
     {
@@ -105,6 +108,18 @@ class Product
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getUpdated(): ?\DateTimeInterface
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated(\DateTimeInterface $updated): self
+    {
+        $this->updated = $updated;
 
         return $this;
     }

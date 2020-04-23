@@ -13,7 +13,6 @@ abstract class BaseEntityService
     protected $om;
     protected $errors = [];
     protected $entity;
-    /** @var SluggerInterface */
     protected $slugger;
 
     public function __construct(EntityManagerInterface $om, SluggerInterface $slugger)
@@ -29,6 +28,13 @@ abstract class BaseEntityService
     public function create($properties = []): self
     {
         $this->setEntity(new $this->entityClass());
+
+        return $this->setProperties($properties);
+    }
+
+    public function update($entity, array $properties): self
+    {
+        $this->setEntity($entity);
 
         return $this->setProperties($properties);
     }
@@ -68,17 +74,20 @@ abstract class BaseEntityService
     public function save()
     {
         if (!empty($this->entity)) {
-            // Save entity
             $this->om->persist($this->entity);
             $this->om->flush();
 
-            // Reset the errors array after saving is successful
             $this->errors = [];
 
             return $this->entity;
         }
 
         $this->errors[] = 'The entity being saved was empty.';
+    }
+
+    public function clear(): void
+    {
+        $this->om->clear();
     }
 
     public function getErrors(): array

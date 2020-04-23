@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Entity;
 
 use App\Entity\Price;
+use App\Entity\Product;
 use App\Entity\Variation;
 
 class PriceService extends BaseEntityService
@@ -19,7 +20,14 @@ class PriceService extends BaseEntityService
 
         /** @var Price $price */
         $price = $this->getEntity();
-        $price->setVariation($this->variation);
+
+        /** @var Variation $variation */
+        $variation = $this->variation;
+        $price->setVariation($variation);
+
+        /** @var Product $product */
+        $product = $variation->getProduct();
+        $product->setUpdated($price->getDate());
 
         return $this;
     }

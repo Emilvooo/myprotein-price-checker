@@ -21,11 +21,23 @@ class VariationService extends BaseEntityService
 
         /** @var Variation $variation */
         $variation = $this->getEntity();
-
-        $variation->setName($this->getVariationName($properties['sku']));
+        $variation->setName($this->processVariationName($this->product, $properties['sku']));
         $variation->setInStock($this->isInStock($properties['availability']));
-        $variation->setSlug($this->slugger->slug($this->getVariationName($properties['sku']))->lower()->toString());
+        $variation->setSlug($this->slugger->slug($this->processVariationName($this->product, $properties['sku']))->lower()->toString());
         $variation->setProduct($this->product);
+
+        return $this;
+    }
+
+    public function update($entity, array $properties): BaseEntityService
+    {
+        parent::update($entity, $properties);
+
+        /** @var Variation $variation */
+        $variation = $this->getEntity();
+//        $variation->setName($this->processVariationName($variation->getProduct(), $properties['sku']));
+//        $variation->setSlug($this->slugger->slug($this->processVariationName($variation->getProduct(), $properties['sku']))->lower()->toString());
+        $variation->setInStock($this->isInStock($properties['availability']));
 
         return $this;
     }
@@ -37,7 +49,7 @@ class VariationService extends BaseEntityService
         return $this;
     }
 
-    private function isInStock($availability): int
+    public function isInStock($availability): int
     {
         if (u($availability)->match('/(?:InStock)/')) {
             return 1;
@@ -46,11 +58,11 @@ class VariationService extends BaseEntityService
         return 0;
     }
 
-    private function getVariationName($sku)
+    private function processVariationName(Product $product, $sku)
     {
         $client = new Client();
-        $crawler = $client->request('GET', 'https://nl.myprotein.com/'.$sku.'.images?variation=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
+        $crawler = $client->request('GET', 'https://nl.myprotein.com/'.$sku.'.images?variations=false&stringTemplatePath=components/athenaProductImageCarousel/athenaProductImageCarousel');
 
-        return $crawler->filter('.athenaProductImageCarousel_imagePreview')->attr('alt');
+        return str_replace(['New -', 'New –', 'Doos -', $product->getName().' - '], '', $crawler->filter('.athenaProductImageCarousel_imagePreview')->attr('alt'));
     }
 }

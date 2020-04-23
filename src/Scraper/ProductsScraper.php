@@ -16,7 +16,7 @@ use App\Service\Entity\VariationService;
 use Goutte\Client;
 use function Symfony\Component\String\u;
 
-class ScraperService
+class ProductsScraper
 {
     /** @var Client */
     private $client;
@@ -78,6 +78,7 @@ class ScraperService
         foreach ($products as $product) {
             if ($productObj = $this->productRepository->findOneBy(['name' => $product['name']])) {
                 $this->processVariations($productObj, $product['offers']);
+                $this->productService->clear();
 
                 continue;
             }
@@ -86,6 +87,7 @@ class ScraperService
             if ($productObj instanceof Product) {
                 printf("Added %s...\n", $productObj->getName());
                 $this->processVariations($productObj, $product['offers']);
+                $this->productService->clear();
             }
         }
     }
@@ -95,13 +97,15 @@ class ScraperService
         printf("Checking %s variations...\n", $product->getName());
         foreach ($variations as $variation) {
             if ($variationObj = $this->variationRepository->findOneBy(['url' => $variation['url']])) {
+                $this->variationService->update($variationObj, $variation)->save();
                 $this->processPrice($variationObj, $variation['price']);
+                $this->variationService->clear();
 
                 continue;
             }
 
             if (u($variation['availability'])->match('/(?:OutOfStock)/')) {
-                /** New variation, but not in stock YET so don't create a new variation. */
+                /** New variations, but not in stock YET so don't create a new variations. */
                 continue;
             }
 
@@ -109,6 +113,7 @@ class ScraperService
             if ($variationObj instanceof Variation) {
                 printf("Added %s...\n", $variationObj->getName());
                 $this->processPrice($variationObj, $variation['price']);
+                $this->variationService->clear();
             }
         }
     }
@@ -124,9 +129,14 @@ class ScraperService
             }
         }
 
-        $priceObj = $this->priceService->setVariation($variation)->create(['price' => (int) ($price * 100), 'date' => $dateToday])->save();
+        $priceObj = $this->priceService->setVariation($variation)->create([
+            'price' => (int) ($price * 100),
+            'date' => $dateToday,
+        ])->save();
+
         if ($priceObj instanceof Price) {
             printf("Added a price (%s) to %s...\n", $priceObj->getPrice(), $variation->getName());
+            $this->priceService->clear();
         }
     }
 }

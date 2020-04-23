@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Scraper\ScraperService;
+use App\Scraper\ProductsScraper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,13 +13,13 @@ class ScrapeProductsCommand extends Command
 {
     protected static $defaultName = 'scrape-products';
 
-    /** @var ScraperService */
-    private $scraperService;
+    /** @var ProductsScraper */
+    private $productsScraper;
 
-    public function __construct(ScraperService $scraperService)
+    public function __construct(ProductsScraper $productsScraper)
     {
-        $this->scraperService = $scraperService;
         parent::__construct();
+        $this->productsScraper = $productsScraper;
     }
 
     protected function configure(): void
@@ -32,7 +32,7 @@ class ScrapeProductsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Starting...');
-        $this->scraperService->startScraping();
+        $this->productsScraper->startScraping();
         $output->writeln('Scraping done!');
 
         return 0;
