@@ -43,7 +43,7 @@
                         </thead>
                         <tbody class="table-borderless">
                         {% for variation in variations %}
-                            {% set price = variation.prices|first %}
+                            {% set price = variation.prices|last %}
                             <tr class="{{ variation.inStock == 1 ? 'bg-success' : 'bg-danger' }} text-w">
                                 <td><a href="{{ variation.url }}" target="_blank" class="text-dark text-decoration-none">{{ variation.name }}</a></td>
                                 <td>€{{ price.price / 100 }}</td>

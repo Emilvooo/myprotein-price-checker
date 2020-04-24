@@ -28,7 +28,7 @@
                             <a href="{{ path('products_item', {slug: product.slug}) }}" class="text-dark text-decoration-none stretched-link">
                                 <h5 class="font-weight-bold center">{{ product.name }}</h5>
                             </a>
-                            <p class="card-text mt-auto"><small class="text-muted">Last updated: <strong>{{ product.updated|date('M-d G:i') }}</strong></small></p>
+                            <p class="card-text mt-auto"><small class="text-muted">Last updated: <strong>{{ product.updated|date('M-d G:i:s') }}</strong></small></p>
                         </div>
                     </div>
             </div>
